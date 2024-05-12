@@ -1,0 +1,282 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html dir="ltr" style="direction: ltr;" lang="de-de"><head>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+ 
+  
+  <meta name="GENERATOR" content="Mozilla/4.78 [en] (Win98; U) [Netscape]">
+
+ 
+  
+  <meta name="Author" content="Christoph Klauck"><title>Aufgabe Hausarbeit</title></head><body style="background-color: rgb(255, 255, 255); direction: ltr;">
+
+<h2>Aufgabe Hausarbeit</h2><span style="font-family: Helvetica,Arial,sans-serif;">
+
+
+In dieser Hausarbeit ist eine einfache </span><b style="font-family: Helvetica,Arial,sans-serif;">Infrastruktur für einen kausalen Multicast mittels Vektoruhr</b><span style="font-family: Helvetica,Arial,sans-serif;">
+inklusiver einer prototypischen kleinen Anwendung zu
+implementieren. Die zu verwendende Programmiersprache ist <a href="https://www.erlang.org/">Erlang OTP</a>.
+Für den Multicast werden Kommunikationseinheiten verwendet, die eine
+Kommunikationsgruppe bilden. Alle Nachrichten innerhalb der Gruppe
+werden per kausalem Multicast versendet</span><span style="font-family: Helvetica,Arial,sans-serif;">.
+Dazu wird eine Vektoruhr verwendet. In den Kommunikationseinheiten wird
+jeweils eine Holdbackqueue und eine Deliveryqueue benötigt. Der kauslae
+Multicast wird in der </span><span style="font-family: Helvetica,Arial,sans-serif;">Holdbackqueue</span><span style="font-family: Helvetica,Arial,sans-serif;"> sicher gestellt. Dort wird entschieden, ob die Nachricht ausgeliefert werden darf. Die </span><span style="font-family: Helvetica,Arial,sans-serif;">Deliveryqueue</span><span style="font-family: Helvetica,Arial,sans-serif;"> stellt die Multicastreihenfolge dar. <br>
+<br></span><span style="font-family: Helvetica,Arial,sans-serif;">Die Verwendung von komplexeren Datenstrukturen von Erlang OTP ist untersagt:
+Etwa die Verwendung von z.B. </span><span style="font-family: monospace;">dict</span><span style="font-family: Helvetica,Arial,sans-serif;"> oder </span><span style="font-family: monospace;">sets</span><span style="font-family: Helvetica,Arial,sans-serif;"> ist nicht zulässig. Lediglich die Basis-Strukturen Liste (</span><span style="font-family: monospace;">lists</span><span style="font-family: Helvetica,Arial,sans-serif;">) und Tupel (</span><span style="font-family: monospace;">tuple</span><span style="font-family: Helvetica,Arial,sans-serif;">)
+dürfen eingesetzt werden. Algorithmen auf diesen Basisstrukturen müssen
+aber selbst implementiert werden.</span><br style="font-family: Helvetica,Arial,sans-serif;"><br style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Lesen
+Sie sich die Aufgabenstellung sorgfältig durch, damit nicht auf Grund
+einer Nachlässigkeit die erfolgreiche Bearbeitung gefährdet
+ist!</span><br><h2>Aufgabenstellung</h2><span style="font-family: Helvetica,Arial,sans-serif;">Basis ist der Algorithmus für den kausalen Multicast:<br>
+<br style="font-family: Helvetica,Arial,sans-serif;">
+</span>
+<div style="margin-left: 40px;"><span style="font-family: Helvetica,Arial,sans-serif;">Seien p1, p2, . . . , pn Gruppenmitglieder</span><span style="font-family: Helvetica,Arial,sans-serif;"><br>
+Sei VTj eine Vektoruhr des Gruppenmitglieds pj</span><span style="font-family: Helvetica,Arial,sans-serif;"><br>
+VTj[i] stellt die Anzahl der von pi gesendeten Multicast-Nachrichten
+dar, die potentiell kausal zu der letzten an pj gelieferten Nachricht
+geführt haben</span><br style="font-family: Helvetica,Arial,sans-serif;">
+</div>
+<ol>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;">Initialisiere alle VTi mit einem&nbsp; Nullvektor</span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;">Wenn pj eine Nachricht per multicast versendet</span></li>
+  <ul>
+    <li><span style="font-family: Helvetica,Arial,sans-serif;">inkrementiere VTj[j] um eins</span></li>
+    <li><span style="font-family: Helvetica,Arial,sans-serif;">Füge aktuelles VTj als Vektorzeitstempel vt zur Nachricht hinzu</span></li>
+  </ul>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;">Nachricht ist bei pi ausgelieferbar, wenn (sei vt der Zeitstempel der Nachricht)</span></li>
+  <ul>
+    <li><span style="font-family: Helvetica,Arial,sans-serif;">Nachricht muss die nächste in der von pj erwarteten Reihenfolge sein: </span><span style="font-family: Helvetica,Arial,sans-serif;">VTi[j]+1 = </span><span style="font-family: Helvetica,Arial,sans-serif;">vt[j] (,d.h. </span><span style="font-family: Helvetica,Arial,sans-serif;">VTi[j] &lt; </span><span style="font-family: Helvetica,Arial,sans-serif;">vt[j]</span><span style="font-family: Helvetica,Arial,sans-serif;">) <br>
+      </span></li>
+    <li><span style="font-family: Helvetica,Arial,sans-serif;">Alle kausal vorhergehenden Nachrichten, die pj zugestellt wurden, wurden auch pi zugestellt: VTi[k] &#8805; vt[k] (für k &#8800; j)</span></li>
+  </ul>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;">Wenn die
+Nachricht bei pi zugestellt/ausgeliefert wird, synchronisiere
+den lokalen Zeitstempel VTi von pi mit dem in der Nachricht empfangenen
+Zeitstempel vt (jeweils das Maximum)</span></li>
+</ol>
+<span style="font-family: Helvetica,Arial,sans-serif;">Achtung: Zu
+beachten ist, dass der Vektorzeitstempel vt aus der Nachricht und der
+lokale Vektorzeitstempel VT aus der allgemeinen Sicht der Vektoruhr
+nebenläufig sind! Daraus resultiert die besondere Anforderung an die
+ADT: aftereqVTJ. Bis auf die Position J soll VT nach oder gleich vt sein (</span><span style="font-family: Helvetica,Arial,sans-serif;">VTi[k] &#8805; vt[k] (für k &#8800; j)</span><span style="font-family: Helvetica,Arial,sans-serif;">). An der Position J gilt </span><span style="font-family: Helvetica,Arial,sans-serif;">VTi[j] &lt; </span><span style="font-family: Helvetica,Arial,sans-serif;">vt[j].<br>
+<br>
+</span><span style="font-family: Helvetica,Arial,sans-serif;">Das
+System besteht im Wesentlichen aus den drei Komponenten
+Kommunikationseinheit, Multicastsender (towerCBC) und der Vektoruhr-ADT
+zusammen mit ihrer Vektoruhrzentrale (towerClock). </span><br>
+<span style="font-family: Helvetica,Arial,sans-serif;"><br>
+</span><span style="font-weight: bold; font-family: Helvetica,Arial,sans-serif;">Die Kommunikationseinheit</span><span style="font-family: Helvetica,Arial,sans-serif;">: </span><span style="font-family: Helvetica,Arial,sans-serif;">In
+der Kommunikationseinheit werden die benötigten Funktionen für die Kommunikation zur
+Verfügung gestellt. Damit hier ein Austausch gewährleistet wird, ist die
+Datei als </span><span style="font-family: monospace;">cbCast.erl</span><span style="font-family: Helvetica,Arial,sans-serif;"> zu bezeichnen. Folgende Festlegungen sind einzuhalten:<br>
+</span>
+<ul>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;">Die <span style="font-weight: bold;">Nachricht</span> eines Anwenders ist eine Zeichenkette.</span><span style="font-family: Helvetica,Arial,sans-serif;"></span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"></span><span style="font-family: Helvetica,Arial,sans-serif;">Nachfolgende <span style="font-weight: bold;">Schnittstellen</span> sind anzubieten:</span></li>
+</ul>
+<ol>
+  <li><span style="font-family: monospace;">init()</span><span style="font-family: Helvetica,Arial,sans-serif;">: erstellt einen Prozess für die Kommunikationseinheit. Rückgabe ist ihre PID.<br>
+    </span></li>
+  <li><span style="font-family: monospace;">stop(Comm)</span><span style="font-family: Helvetica,Arial,sans-serif;">: terminiert die Kommunikationseinheit mit PID </span><span style="font-family: monospace;">Comm</span><span style="font-family: Helvetica,Arial,sans-serif;">. Rückgabe ist </span><span style="font-family: monospace;">done</span><span style="font-family: Helvetica,Arial,sans-serif;">.<br>
+    </span></li>
+  <li><span style="font-family: monospace;">send(Comm,Message)</span><span style="font-family: Helvetica,Arial,sans-serif;">:
+sendet eine Nachricht </span><span style="font-family: monospace;">Message</span><span style="font-family: Helvetica,Arial,sans-serif;"> über die Kommunikationseinheit </span><span style="font-family: monospace;">Comm</span><span style="font-family: Helvetica,Arial,sans-serif;"> als
+kausaler Multicast an alle anderen in der Gruppe.<br>
+    </span></li>
+  <li><span style="font-family: monospace;">received(Comm)</span><span style="font-family: Helvetica,Arial,sans-serif;">: empfängt blockierend eine Nachricht von der Kommunikationseinheit </span><span style="font-family: monospace;">Comm</span><span style="font-family: Helvetica,Arial,sans-serif;">. Die Rückgabe ist eine Zeichenkette.<br>
+    </span></li>
+  <li><span style="font-family: monospace;">read(Comm)</span><span style="font-family: Helvetica,Arial,sans-serif;">: </span><span style="font-family: Helvetica,Arial,sans-serif;">empfängt
+nicht blockierend eine Nachricht von der Kommunikationseinheit </span><span style="font-family: monospace;">Comm</span><span style="font-family: Helvetica,Arial,sans-serif;">.
+Wenn keine Nachricht vorhanden ist, wird </span><span style="font-family: monospace;">null</span><span style="font-family: Helvetica,Arial,sans-serif;"> zurück gegeben, sonst eine Zeichenkette.</span></li>
+  <li><span style="font-family: monospace;">{&lt;PID&gt;,{castMessage,</span><span style="font-family: monospace;">{&lt;Message&gt;,&lt;VT&gt;}</span><span style="font-family: monospace;">}}</span><span style="font-family: Helvetica,Arial,sans-serif;">: </span><span style="font-family: Helvetica,Arial,sans-serif;">als Nachricht. Empfängt die Nachricht </span><span style="font-family: monospace;">&lt;Message&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;">
+mit Vektorzeitstempel </span><span style="font-family: monospace;">&lt;VT&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;">.
+</span><span style="font-family: monospace;">&lt;PID&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;"> wird nicht benötigt.</span></li>
+</ol>
+<span style="font-weight: bold; font-family: Helvetica,Arial,sans-serif;">Die Vektoruhr-ADT</span><span style="font-family: Helvetica,Arial,sans-serif;">: </span><span style="font-family: Helvetica,Arial,sans-serif;">In
+der ADT werden die benötigten Funktionen für die Vektoruhr zur
+Verfügung gestellt. Damit hier ein Austausch der ADT gewährleistet wird, ist die
+Datei als </span><span style="font-family: monospace;">vectorC.erl</span><span style="font-family: Helvetica,Arial,sans-serif;">
+zu bezeichnen. Die Vektoruhr wird bei den Anwendern durch den
+Vektorzeitstempel VT realsiert. Die Anwendung ist dafür verantwortlich,
+den Algorithmus der Vektoruhr umzusetzen. </span><span style="font-family: Helvetica,Arial,sans-serif;">Nachfolgende <span style="font-weight: bold;">Schnittstellen</span> sind dazu anzubieten:</span><ul>
+</ul>
+
+<ol>
+  <li><span style="font-family: monospace;">initVT()</span><span style="font-family: Helvetica,Arial,sans-serif;">:
+erstellt einen initialen Vektorzeitstempel. Dazu nimmt sie gemäß Spezifikation in </span><a href="aufgHA/towerClock.cfg"><span style="font-family: monospace;">towerClock.cfg</span></a><span style="font-family: Helvetica,Arial,sans-serif;"> Kontakt mit
+der Zentrale </span><span style="font-family: monospace;">towerClock</span><span style="font-family: Helvetica,Arial,sans-serif;">
+auf, um eine Identität zu erhalten. Rückgabe ist ein initialer
+Vektorzeitstempel. Dieser stellt die Vektoruhr dar. Achtung: die
+towerClock.cfg dient nur der ADT vectorC.erl. Der Tower selbst liest
+diese Datei nicht ein.<br>
+    </span></li>
+  <li><span style="font-family: monospace;">myVTid(VT)</span><span style="font-family: Helvetica,Arial,sans-serif;">: gibt die ProzessID zurück, also &lt;Pnum&gt; des Vektorzeitstempels, als ganze Zahl.<br>
+    </span></li>
+  <li><span style="font-family: monospace;">myVTvc(VT)</span><span style="font-family: Helvetica,Arial,sans-serif;">: gibt den Vektor zurück, also den Vektorzeitstempel, als Liste aus ganzen Zahlen inklusive 0.<br>
+    </span></li>
+  <li><span style="font-family: monospace;">myCount(VT)</span><span style="font-family: Helvetica,Arial,sans-serif;">: gibt den eigenen Zeitstempel </span><span style="font-family: Helvetica,Arial,sans-serif;">als ganze Zahl </span><span style="font-family: Helvetica,Arial,sans-serif;">zurück bzw. den zugehörigen Ereigniszähler, .<br>
+    </span></li>
+  <li><span style="font-family: monospace;">foCount(J,VT)</span><span style="font-family: Helvetica,Arial,sans-serif;">: gibt den Zeitstempel der Position </span><span style="font-family: monospace;">J</span><span style="font-family: Helvetica,Arial,sans-serif;"> als ganze Zahl zurück bzw. den zugehörigen Ereigniszähler.<br>
+    </span></li>
+  <li><span style="font-family: monospace;">isVT(VT)</span><span style="font-family: Helvetica,Arial,sans-serif;">: prüft, ob </span><span style="font-family: monospace;">VT</span><span style="font-family: Helvetica,Arial,sans-serif;"> ein Vektorzeitstempel ist. Rückgabe ist </span><span style="font-family: monospace;">true</span><span style="font-family: Helvetica,Arial,sans-serif;"> oder </span><span style="font-family: monospace;">false</span><span style="font-family: Helvetica,Arial,sans-serif;">.<br>
+    </span></li>
+<li><span style="font-family: monospace;">syncVT (VT1,VT2)</span><span style="font-family: Helvetica,Arial,sans-serif;">: synchronisiert zwei Vektorzeitzstempel (jeweils das Maximum, </span><span style="font-family: monospace;">VT1</span><span style="font-family: Helvetica,Arial,sans-serif;"> wird als eigener Zeitstempel angesehen). Rückgabe ist der neue Vektorzeitstempel.<br>
+    </span></li>
+  <li><span style="font-family: monospace;">tickVT(VT)</span><span style="font-family: Helvetica,Arial,sans-serif;">: zählt den Ereigniszähler des zugehörigen Prozesses um 1 nach oben. </span><span style="font-family: Helvetica,Arial,sans-serif;">Rückgabe ist der neue Vektorzeitstempel.</span></li>
+  <li><span style="font-family: monospace;">compVT(VT1,VT2)</span><span style="font-family: Helvetica,Arial,sans-serif;">: vergleicht Vektorzeitstempel. Rückgabe: </span><span style="font-family: monospace;">afterVT</span><span style="font-family: Helvetica,Arial,sans-serif;">, </span><span style="font-family: monospace;">beforeVT</span><span style="font-family: Helvetica,Arial,sans-serif;">, </span><span style="font-family: monospace;">equalVT</span><span style="font-family: Helvetica,Arial,sans-serif;"> oder </span><span style="font-family: monospace;">concurrentVT</span><span style="font-family: Helvetica,Arial,sans-serif;">.</span></li>
+  <li><span style="font-family: monospace;">aftereqVTJ(VT,VTR)</span><span style="font-family: Helvetica,Arial,sans-serif;">:
+vergleicht im Sinne des kausalen Multicast die Vektorzeitstempel, ob </span><span style="font-family: monospace;">VT aftereq VTR</span><span style="font-family: Helvetica,Arial,sans-serif;"> ist, ohne Beachtung von Position </span><span style="font-family: monospace;">J</span><span style="font-family: Helvetica,Arial,sans-serif;">. Die
+Distanz wird berechnet für die Identität </span><span style="font-family: monospace;">J</span><span style="font-family: Helvetica,Arial,sans-serif;"> des Vektorzeitstempels </span><span style="font-family: monospace;">VTR</span><span style="font-family: Helvetica,Arial,sans-serif;">, dem Zeitstempel der Nachricht.&nbsp;
+Rückgabe: </span><span style="font-family: monospace;">{aftereqVTJ, &lt;Distanz an der Stelle J&gt;}</span><span style="font-family: Helvetica,Arial,sans-serif;"> oder </span><span style="font-family: monospace;">false</span><span style="font-family: Helvetica,Arial,sans-serif;">. Dabei wird die Distanz berechnet, durch VT[j] - VTR[j], wobei j die Identität von VTR ist. Wenn die Distanz </span><span style="font-family: monospace;">-1</span><span style="font-family: Helvetica,Arial,sans-serif;"> ist, dann kann die Nachricht mit Zeitstempel VTR ausgeliefert werden.<br>
+    </span></li>
+</ol>
+
+<span style="font-family: Helvetica,Arial,sans-serif;"></span><span style="font-family: Helvetica,Arial,sans-serif;"></span><span style="font-weight: bold; font-family: Helvetica,Arial,sans-serif;">Vektoruhr Zentrale / Tower</span><span style="font-family: Helvetica,Arial,sans-serif;">: </span><span style="font-family: Helvetica,Arial,sans-serif;">Der Tower verwaltet die Prozessnummern und gehört zur Vektoruhr-ADT dazu. </span><span style="font-family: Helvetica,Arial,sans-serif;">Damit hier ein Austausch der ADT gewährleistet wird, ist die
+Datei als </span><span style="font-family: monospace;">towerClock.erl</span><span style="font-family: Helvetica,Arial,sans-serif;"> zu bezeichnen</span><span style="font-family: Helvetica,Arial,sans-serif;">. </span><span style="font-family: Helvetica,Arial,sans-serif;">Jede
+Kommunikationseinheit erhält über </span><span style="font-family: monospace;">initVT()</span><span style="font-family: Helvetica,Arial,sans-serif;"> beim Tower seine
+Prozessnummer
+</span><span style="font-family: monospace;">&lt;Pnum&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;">. </span><span style="font-family: Helvetica,Arial,sans-serif;">Nachfolgende <span style="font-weight: bold;">Schnittstellen</span> sind anzubieten:<br style="font-family: Helvetica,Arial,sans-serif;">
+</span>
+<ol start="1" style="font-family: Helvetica,Arial,sans-serif; list-style-type: decimal;">
+<li><span style="font-family: monospace;">{getVecID,&lt;PID&gt;}</span>: als Nachricht, wobei
+    <span style="font-family: monospace;">&lt;PID&gt;</span> die Antwortadresse ist. Der Tower sendet an <span style="font-family: monospace;">&lt;PID&gt;</span> mittels der Nachricht <span style="font-family: monospace;">{vt,&lt;Prozess-ID&gt;}</span> die eindeutige ID
+    <span style="font-family: monospace;">&lt;Prozess-ID&gt;</span> (positive ganze Zahl) dieser Vektoruhr.</li><li><span style="font-family: monospace;">init()</span>:
+startet die Vektoruhr Zentrale gemäß Spezifikation in <a href="aufgHA/towerClock.cfg"><span style="font-family: monospace;">towerClock.cfg</span></a>.
+In dieser Datei stehen die Node und der lokale Name der Vektoruhr
+Zentrale. Rückgabewert ist die PID des Tower.<br>
+</li><li><span style="font-family: monospace;">stop(&lt;PID&gt;)</span>: wobei <span style="font-family: monospace;">&lt;PID&gt;</span> die Kontaktadresse
+des Tower oder seine PID ist. Diese Funktion beendet den Tower. Rückgabewert bei Erfolg ist <span style="font-family: monospace;">true</span>.</li></ol><span style="font-weight: bold; font-family: Helvetica,Arial,sans-serif;">Ungeordneter Multicast</span><span style="font-family: Helvetica,Arial,sans-serif;">: </span><span style="font-family: Helvetica,Arial,sans-serif;">Für die Kommunikationseinheiten wird zum Test ein zuverlässiger ungeordneter Multicast </span><a href="aufgHA/towerCBC.beam"><span style="font-family: monospace;">towerCBC.beam</span></a><span style="font-family: Helvetica,Arial,sans-serif;"> zur Verfügung gestellt. </span><span style="font-family: Helvetica,Arial,sans-serif;">Die Spezifikation steht in </span><a href="aufgHA/towerCBC.cfg"><span style="font-family: monospace;">towerCBC.cfg</span></a><span style="font-family: Helvetica,Arial,sans-serif;">.&nbsp;</span><span style="font-family: Helvetica,Arial,sans-serif;"></span><span style="font-family: Helvetica,Arial,sans-serif;">Ein
+eigener zuverlässiger ungeordneter Multicat ist jedoch zu
+implementioeren. Damit hier ein Austausch der ADT gewährleistet wird,
+ist die
+Datei als </span><span style="font-family: monospace;">towerCBC.erl</span><span style="font-family: Helvetica,Arial,sans-serif;"> zu bezeichnen</span><span style="font-family: Helvetica,Arial,sans-serif;">.</span><span style="font-family: Helvetica,Arial,sans-serif;"> Achtung: die </span><span style="font-family: monospace;">towerCBC.cfg</span> <span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">dient nur der Kommunikationseinheit </span></span><span style="font-family: monospace;">cbCast.erl</span><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">. Der Tower selbst liest diese Datei nicht ein. Er sendet i</span>m
+Auftrag der Kommunikatiosneinheiten die Nachrichten an die
+Multicast-Gruppe. Zum Test bietet er Schnittstellen an, um die
+Nachrichten manuell an die Kommunikationseinheiten zu verteilen.
+Beachten Sie: es darf kein geordneter Multicast entstehen. Orientieren
+Sie sich hier bitte an dem zur Verfügung gestelltem towerCBC! </span><span style="font-family: Helvetica,Arial,sans-serif;">Nachfolgende <span style="font-weight: bold;">Schnittstellen</span> werden angeboten:</span><span style="font-family: Helvetica,Arial,sans-serif;"></span><br><span style="font-family: Helvetica,Arial,sans-serif;"></span>
+
+<ol>
+<li><span style="font-family: monospace;">init()|init(auto|manu)</span><span style="font-family: Helvetica,Arial,sans-serif;">: startet den Multicast im automatischen Modus (</span><span style="font-family: monospace;">init()|init(auto)</span><span style="font-family: Helvetica,Arial,sans-serif;"></span><span style="font-family: Helvetica,Arial,sans-serif;">) oder dem manuellen Modus (</span><span style="font-family: monospace;">init(manu)</span><span style="font-family: Helvetica,Arial,sans-serif;"></span><span style="font-family: Helvetica,Arial,sans-serif;">).
+Rückgabewert ist die PID des Multicast.&nbsp; Achtung: um den manuellen
+Modus nutzen zu können, muss die Kommunikationseinheit cbCast.erl mit
+multicastNB senden!</span><span style="font-family: Helvetica,Arial,sans-serif;"><br>
+    </span></li><li><span style="font-family: monospace;">stop(&lt;PID&gt;)</span><span style="font-family: Helvetica,Arial,sans-serif;">: wobei </span><span style="font-family: monospace;">&lt;PID&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;"> die Kontaktadresse des Multicast ist. Diese Funktion beendet den Multicast. Rückgabewert ist bei Erfolg </span><span style="font-family: monospace;">true</span><span style="font-family: Helvetica,Arial,sans-serif;">. <br>
+    </span></li><li><span style="font-family: monospace;">reset(&lt;PID&gt;)</span><span style="font-family: Helvetica,Arial,sans-serif;">: </span><span style="font-family: Helvetica,Arial,sans-serif;">wobei </span><span style="font-family: monospace;">&lt;PID&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;"> die Kontaktadresse des Multicast ist. Diese Funktion setzt den Multicast wieder in den initialen Zustand. </span><span style="font-family: Helvetica,Arial,sans-serif;">Rückgabewert ist bei Erfolg </span><span style="font-family: monospace;">true</span><span style="font-family: Helvetica,Arial,sans-serif;">.</span></li><li><span style="font-family: monospace;">listall()</span><span style="font-family: Helvetica,Arial,sans-serif;">:
+muss auf der Node des Multicast ausgeführt werden und listet alle
+registrierten Kommunikationseinheiten in der zugehörigen Log-Datei auf.
+Rückgabewert ist bei Erfolg </span><span style="font-family: monospace;">true</span><span style="font-family: Helvetica,Arial,sans-serif;">, sonst </span><span style="font-family: monospace;">false</span><span style="font-family: Helvetica,Arial,sans-serif;">.<br>
+    </span></li><li><span style="font-family: monospace;">cbcast(&lt;Receiver&gt;,&lt;MessageNumber&gt;)</span><span style="font-family: Helvetica,Arial,sans-serif;">: </span><span style="font-family: Helvetica,Arial,sans-serif;">muss auf der Node des Multicast ausgeführt werden und </span><span style="font-family: Helvetica,Arial,sans-serif;">sendet die als </span><span style="font-family: monospace;">&lt;MessageNumber&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;">-te </span><span style="font-family: Helvetica,Arial,sans-serif;">beim Multicast </span><span style="font-family: Helvetica,Arial,sans-serif;">eingetroffene Nachricht an den Empfänger </span><span style="font-family: monospace;">&lt;Receiver&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;">. Dient im manuellen Zustand der manuellen Durchführuzng des Multicast. </span><span style="font-family: Helvetica,Arial,sans-serif;">Rückgabewert ist bei Erfolg </span><span style="font-family: monospace;">true</span><span style="font-family: Helvetica,Arial,sans-serif;">, sonst </span><span style="font-family: monospace;">false</span><span style="font-family: Helvetica,Arial,sans-serif;">. </span><span style="font-family: Helvetica,Arial,sans-serif;">Achtung: um den manuellen Modus nutzen zu können, muss die Kommunikationseinheit cbCast.erl mit  multicastNB senden!</span><span style="font-family: Helvetica,Arial,sans-serif;">
+    </span></li><li><span style="font-family: monospace;">{&lt;PID&gt;,{register,&lt;RPID&gt;}}</span><span style="font-family: Helvetica,Arial,sans-serif;">: als Nachricht. Registriert die Kommunikationseinheit </span><span style="font-family: monospace;">&lt;RPID&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;"> beim Multicast. </span><span style="font-family: monospace;">&lt;PID&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;"> erhält als Antwort </span><span style="font-family: monospace;">{replycbc,ok_existing}</span><span style="font-family: Helvetica,Arial,sans-serif;"> wenn er bereits registriert wurde oder </span><span style="font-family: monospace;">{replycbc,ok_registered}</span><span style="font-family: Helvetica,Arial,sans-serif;"> wenn er neu registriert wurde. Der Multicast wird an </span><span style="font-family: monospace;">&lt;RPID&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;"> gesendet.</span><span style="font-family: Helvetica,Arial,sans-serif;"></span></li><li><span style="font-family: monospace;">{&lt;PID&gt;,{multicastB,{&lt;Message&gt;,&lt;VT&gt;}}</span><span style="font-family: Helvetica,Arial,sans-serif;">: als Nachricht. Sendet die Nachricht </span><span style="font-family: monospace;">&lt;Message&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;">
+</span><span style="font-family: Helvetica,Arial,sans-serif;">mit Vektorzeitstempel </span><span style="font-family: monospace;">&lt;VT&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;"> </span><span style="font-family: Helvetica,Arial,sans-serif;">als ungeordneten, blockierenden Multicast an alle Gruppenmitglieder.
+Blockierend bedeutet, dass in der Zeit kein anderer Multicast versendet
+wird. </span><span style="font-family: monospace;">&lt;PID&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;"> ist eine PID und wird lediglich im Log vermerkt.</span><span style="font-family: Helvetica,Arial,sans-serif;"><br>
+    </span></li><li><span style="font-family: monospace;">{&lt;PID&gt;,{multicastNB,</span><span style="font-family: monospace;">{&lt;Message&gt;,&lt;VT&gt;}</span><span style="font-family: monospace;">}}</span><span style="font-family: Helvetica,Arial,sans-serif;">: </span><span style="font-family: Helvetica,Arial,sans-serif;">als Nachricht. Sendet die Nachricht </span><span style="font-family: monospace;">&lt;Message&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;">
+mit Vektorzeitstempel </span><span style="font-family: monospace;">&lt;VT&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;"> als ungeordneten, nicht blockierenden Multicast an alle Gruppenmitglieder.
+Nicht blockierend bedeutet, dass in der Zeit andere Multicast versendet werden können. </span><span style="font-family: monospace;">&lt;PID&gt;</span><span style="font-family: Helvetica,Arial,sans-serif;"> </span><span style="font-family: Helvetica,Arial,sans-serif;">ist eine PID und </span><span style="font-family: Helvetica,Arial,sans-serif;">wird lediglich im Log vermerkt.</span></li>
+</ol>
+
+
+<h3><span style="font-family: Helvetica,Arial,sans-serif;"></span><span style="font-family: Helvetica,Arial,sans-serif;"></span><span style="font-weight: bold; font-family: Helvetica,Arial,sans-serif;"></span><span style="font-family: Helvetica,Arial,sans-serif;">Hinweise zum kausalen Multicast</span></h3>
+<h3><span style="font-family: Helvetica,Arial,sans-serif;"></span></h3>
+<ul>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Comm-Module
+(Gruppenmitglieder) müssen sich beim Multicast-Tower (towerCBC)
+registrieren. Dazu senden sie die Adresse ihres receivers (Dispatchers):</span></span><span style="font-family: monospace;"> {&lt;PID&gt;,{register,&lt;PIDReceiver&gt;}}</span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Anwender kommunizieren mit dem Comm-Modul (</span></span><span style="font-family: monospace;">received,read,send,init,stop</span><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">).</span></span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Das Comm-Modul benötigt eine Holdbackqueue (HBQ) und eine Deliveryqueue (DLQ). </span></span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Der kausale Multicast wird in der HBQ sicher gestellt. Dort wird entschieden, ob die Nachricht ausgeliefert werden darf.</span></span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Die DLQ stellt die Multicastreihenfolge dar. In der DLQ werden die Nachrichten sortiert nach Vorgabe der HBQ. <br>
+    </span></span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Die lokale Vektoruhr wird bei Auslieferung der Nachricht (</span></span><span style="font-family: monospace;">received,read</span><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">) mit dem Zeitstempel der Nachricht synchronisiert.</span></span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Ein </span></span><span style="font-family: monospace;">received/read</span><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;"> des Anwenders ist letztlich ein received/read an die DLQ. Die DLQ liefert die nächste auslieferbare Nachricht.</span></span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Achtung: es darf kein total geordneter Multicast entstehen. Unterster zuverlässiger Multicast (towerCBC) ist ungeordnet!</span></span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Die Nachrichten eines Anwenders (send) werden im eigenen Comm-Modul direkt in die DLQ eingestellt.</span></span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Der
+zur Verfügung gestellt zuverlässige ungeordnete Multicast stellt beim
+manuellen Test nicht den kausalen Multicast sicher. Im
+Gegenteil: er liefert die Multicast Nachrichten zuverlässig, aber
+möglichst ungünstig für den kausalen Multicast aus.<br>
+    </span></span></li>
+
+</ul>
+<span style="font-weight: bold; font-family: Helvetica,Arial,sans-serif;">Anwendung</span><span style="font-family: Helvetica,Arial,sans-serif;">: für das erstellte System ist ein <span style="font-weight: bold;">Anwendungsscenario zu beschreiben</span> und zu implementieren.</span><span style="font-family: Helvetica,Arial,sans-serif;"></span><br>
+
+
+
+<ul>
+
+
+</ul>
+
+<h3>Hinweise</h3>
+
+<ol start="33">
+
+  </ol><ul><li><span style="font-weight: bold;"></span><span style="font-family: Helvetica,Arial,sans-serif;">Sofern
+in der zusammenarbeit Ihrer Software mit den zur Verfügung gestellten
+Einheiten es zu Fehlermeldungen kommt, die die bereit gestellten
+Einheiten betreffen, senden Sie bitte diese Meldungen inklusive der
+kompletten Anwendung an mich zur Rücksprache.</span></li>
+  <li><span style="font-family: Helvetica,Arial,sans-serif;">Die Austauschbarkeit folgender EInheiten muss sichergetsllt sein: Die Kommunikationseinheit in </span><span style="font-family: monospace;">cbCast.erl</span><span style="font-family: Helvetica,Arial,sans-serif;">, die Vektoruhr-ADT in </span><span style="font-family: monospace;">vectorC.erl</span><span style="font-family: Helvetica,Arial,sans-serif;"> sowie der Tower der Vektoruhr-ADT in </span><span style="font-family: monospace;">towerClock.erl</span><span style="font-family: Helvetica,Arial,sans-serif;">. Dies bedeutet insbesondere, dass keine weiteren Dateien benötigt werden dürfen, um die Funktionalität zu erhalten.<br>
+    </span></li>
+<li style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">In den Dateien <a href="util.erl">util.erl</a> und <a href="vsutil.erl"><span style="text-decoration: underline;">vsutil</span></a></span><a href="vsutil.erl"><span style="font-family: Helvetica,Arial,sans-serif;">.erl</span></a><span style="font-family: Helvetica,Arial,sans-serif;">
+gibt es
+nützliche Funktionen. Diese dürfen nicht modifiziert werden. Diese
+stehen dem System auch jederzeit zur Verfügung und wirken sich somit
+nicht auf die Austauschbarkeit der beschrieben EInheiten aus, d.h. die
+austauschbaren Einheiten können diese Module nutzen. <br>
+</span></li><li style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Als Beispiel und zum Testen können Sie </span><span style="font-family: Helvetica,Arial,sans-serif;">das folgende System </span><span style="font-family: Helvetica,Arial,sans-serif;">verwenden:
+    <a href="aufgHA/aufgHA.zip">Testsystem</a>. Hinweis: die vectorC ist hier als RPC realisiert, um Fehler
+durch den nicht zulässigen Zugriff in die ADT mittels Tests aufzudecken.<br>
+</span></li>
+  <li style="font-family: Helvetica,Arial,sans-serif;"><span style="font-family: Helvetica,Arial,sans-serif;">Halten Sie das System einfach und strukturiert! Wenn die Kernfunktionalität
+erstellt wurde, kann das System immer noch beliebig
+erweitert/verbessert werden.</span></li>
+</ul><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-weight: bold; color: red;"></span></span><h2>Abgabe<br>
+
+
+</h2><span style="font-family: Helvetica,Arial,sans-serif;">Die Abgabe ist auf den Folien zur Aufgabenstellung genau spezifiziert.</span><span style="font-weight: bold; font-family: Helvetica,Arial,sans-serif;"></span><span style="font-family: Helvetica,Arial,sans-serif;"><span style="font-weight: bold;"></span></span><br>
+
+<br>
+
+<br>
+
+<!-- BEGINN GOWEB WEBCOUNTER -->
+<center><a href="http://www.webcounter.goweb.de"><img src="http://webcounter.goweb.de/12337.GIF" alt="gratis Counter by GOWEB" border="0" vspace="0"></a><br>
+
+<a href="http://www.webcounter.goweb.de"><font color="#4c4c4c" size="-2">Gratis Counter by GOWEB</font></a>
+</center>
+
+<!-- ENDE GOWEB WEBCOUNTER -->
+</body></html>
