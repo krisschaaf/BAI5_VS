@@ -1,0 +1,95 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage[a4paper,lmargin={3cm},rmargin={3cm},
+tmargin={3cm},bmargin = {2cm}]{geometry}
+\usepackage{fancyhdr}
+\usepackage{pdfpages}
+\usepackage{parskip}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[backend=biber,style=alphabetic]{biblatex}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{float}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Erlang,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\addbibresource{library.bib}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Holdback und Delivery Queue}
+\lhead{Kristoffer Schaaf}
+\rfoot{Page \thepage}
+
+\newgeometry{
+lmargin={0cm},rmargin={0cm},
+tmargin={3cm},bmargin = {2cm}
+}
+
+\begin{document}
+
+\include{Latex/txtFiles/Titelseite} 
+
+\newgeometry{
+lmargin={3cm},rmargin={3cm},
+tmargin={3cm},bmargin = {2cm}
+}
+\tableofcontents
+\thispagestyle{empty}
+
+\newpage
+\begingroup
+\let\clearpage\relax
+\setcounter{page}{1}
+
+\include{Latex/txtFiles/1_Theorie}
+\include{Latex/txtFiles/2_Entwurf}
+\include{Latex/txtFiles/3_Realisierung}
+\include{Latex/txtFiles/4_Analyse}
+\include{Latex/txtFiles/5_Fazit}
+
+\endgroup
+
+\newpage
+
+\include{Latex/txtFiles/Selbstständigkeitserklärung}
+
+\newpage
+\addcontentsline{toc}{section}{Abbildungsverzeichnis}
+\listoffigures
+
+\addcontentsline{toc}{section}{Literaturverzeichnis}
+\printbibliography[title={Literaturverzeichnis}]
+
+
+\newpage
+
+\appendix
+    \section{Anhang} \label{anhang}
+
+\end{document}
