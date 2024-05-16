@@ -17,9 +17,15 @@ Die Zeiger in den Vektoruhren sind in vielen Implementierungen Zeitstempel der z
 
 \subsection{Kommunikationseinheit}
 
+Die Kommunikationseinheiten (\textit{comm}) sind die verschiedenen Prozesse, bzw. Teilnehmer im Netzwerk. % TODO
+
 \subsection{Vektoruhr-ADT}
 
-\subsection{Vektoruhr Zentrale/Tower}
+Die Vektoruhr (\textit{vectorC}) wird in dieser Ausarbeitung als ein abstrakter Datentyp implementiert. Jeder Prozess hat seine eigene Vektoruhr \textit{VT}. Um eine Identität und einen initialen Zeitstempel zu erhalten, muss sich jede Vektoruhr beim Tower (Kap. \ref{tower}) melden.
+
+\subsection{Vektoruhr Zentrale/Tower} \label{tower}
+
+Die zentrale Vektoruhr (\textit{Tower}) verwaltet die Prozessnummern. Prozessnummern sind im Folgenden eindeutige IDs aus positiven ganzen Zahlen.
 
 \subsection{Ungeordneter Multicast}
 
