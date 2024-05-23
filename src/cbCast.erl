@@ -5,17 +5,15 @@
 % init(): erstellt einen Prozess für die Kommunikationseinheit. Rückgabe ist ihre PID.
 init() ->
 	{ok, HostName} = inet:gethostname(),
+    {ok, [{servername,Servername}, {servernode,Servernode}]} = file:consult("configs/towerCBC.cfg"),
     Datei = "logs/cbCast@"++HostName++".log",
-	% Datei = lists:concat([util:to_String(util:attachStamp('cbCast')),"@",HostName,".log"]),  
-    CommCBC = spawn(fun() -> loop(Datei) end),
-    % CommCBC = spawn(TowerClocknode,fun() -> towerClock:init() end),
+    CommCBC = spawn(fun() -> loop(Datei, register, Servername, Servernode) end),
     register(cbCast,CommCBC),
     CommCBC.
 
 % stop(Comm): terminiert die Kommunikationseinheit mit PID Comm. Rückgabe ist done.
 stop(Comm) -> 
-    exit(whereis(Comm), ok),
-    done. 
+    exit(whereis(Comm), ok).
 
 % send(Comm,Message): sendet eine Nachricht Message über die Kommunikationseinheit Comm als kausaler Multicast an alle anderen in der Gruppe.
 send(Comm, Message) -> {}.
@@ -30,6 +28,10 @@ read(Comm) -> "".
 castMessage(Message, VT, Datei) -> 
     util:logging(Datei, "Nachricht: "++util:to_String(Message)++" mit Vektorzeitstempel: "++util:to_String(VT)++" empfangen."),
     {}.
+
+loop(Datei, register, Servername, Servernode) ->
+    {Servername, Servernode} ! {self(), {register, self()}},
+    loop(Datei).
 
 % {<PID>,{castMessage,{<Message>,<VT>}}}: als Nachricht. Empfängt die Nachricht <Message> mit Vektorzeitstempel <VT>. <PID> wird nicht benötigt.
 % z.B. cbCast ! {self(), {castMessage, {"msg", 12}}}.
