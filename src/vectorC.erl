@@ -5,7 +5,26 @@
 % initVT(): erstellt einen initialen Vektorzeitstempel. Dazu nimmt sie gemäß Spezifikation in towerClock.cfg Kontakt mit der Zentrale towerClock auf, um eine Identität zu erhalten. 
 % Rückgabe ist ein initialer Vektorzeitstempel. Dieser stellt die Vektoruhr dar. Achtung: die towerClock.cfg dient nur der ADT vectorC.erl. Der Tower selbst liest diese Datei nicht ein.
 initVT() -> 
-    towerClock ! {getVecID, self()}. % TODO nehme towerClock pid aus towerClock.cfg
+    {ok, [{servername,Servername}, {servernode,Servernode}]} = file:consult("configs/towerClock.cfg"),
+    Datei = "logs/"++util:to_String(erlang:node())++".log",
+
+    case net_adm:ping(Servernode) of
+        pong -> 
+            util:logging(Datei, "TowerClock "++util:to_String(Servername)++" von Server "++util:to_String(Servernode)++" per ping eingebunden\n");
+        pang -> 
+            util:logging(Datei, "TowerClock "++util:to_String(Servername)++" von Server "++util:to_String(Servernode)++" per ping nicht eingebunden\n"),
+            throw({error, "Server nicht erreichbar"})          
+    end,
+
+    {Servername, Servernode} ! {getVecID, self()},
+    receive
+        {vt, VecID} -> 
+            util:logging(Datei, "VecID received: "++util:to_String(VecID)++"\n"),
+            VecID
+        after 1000 -> 
+            util:logging(Datei, "Timeout: no VecID received.\n"),
+            false
+    end.
 
 % myVTid(VT): gibt die ProzessID zurück, also <Pnum> des Vektorzeitstempels, als ganze Zahl.
 myVTid(VT) -> {}.
