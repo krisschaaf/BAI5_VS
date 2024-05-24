@@ -23,5 +23,9 @@ loop(Datei) ->
         {getVecID, PID} ->
             PID ! {vt, PID}, % TODO: get correct PID
             util:logging(Datei, "vectorID sent to "++util:to_String(PID)++"\n"),
+            loop(Datei);
+
+        Any -> 
+            util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
             loop(Datei)
     end.

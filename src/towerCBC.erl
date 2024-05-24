@@ -88,6 +88,10 @@ loop(Datei, Registered, Auto) ->
             util:logging(Datei, "Registered Comm Modules:\n"),
             logAll(Datei, Registered),
             From ! {replycbc, ok_listall},
+            loop(Datei, Registered, Auto);
+        
+        Any -> 
+            util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
             loop(Datei, Registered, Auto)
     end.
 

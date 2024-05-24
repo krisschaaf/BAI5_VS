@@ -62,5 +62,8 @@ loop(Datei) ->
 	receive
         {_From, {castMessage, {Message, VT}}} ->
             castMessage(Message, VT, Datei),
+            loop(Datei);
+        Any -> 
+            util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
             loop(Datei)
 	end.
