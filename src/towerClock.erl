@@ -6,7 +6,7 @@
 % Rückgabewert ist die PID des Tower.
 init() -> 
     Datei = "logs/"++util:to_String(erlang:node())++".log",
-    TowerClock = spawn(fun() -> loop(Datei) end),
+    TowerClock = spawn(fun() -> loop(Datei, []) end),
     register(vtKLCclockC,TowerClock),
     util:logging(Datei, "TowerClock initialized with PID: "++util:to_String(TowerClock)++" on Node "++util:to_String(erlang:node())++"\n"),
     TowerClock.
@@ -16,16 +16,30 @@ init() ->
 stop(PID) -> 
     exit(whereis(PID), ok).
 
-loop(Datei) ->
+loop(Datei, Map) ->
     receive
         % {getVecID,<PID>}: als Nachricht, wobei <PID> die Antwortadresse ist. 
         % Der Tower sendet an <PID> mittels der Nachricht {vt,<Prozess-ID>} die eindeutige ID <Prozess-ID> (positive ganze Zahl) dieser Vektoruhr.
         {getVecID, PID} ->
-            PID ! {vt, PID}, % TODO: get correct PID
-            util:logging(Datei, "vectorID sent to "++util:to_String(PID)++"\n"),
-            loop(Datei);
-
+            case map(Map, PID) of
+                undefined ->
+                    ID = length(Map)+1,
+                    util:logging(Datei, "VecID "++util:to_String(ID)++" registered and sent to "++util:to_String(PID)++"\n"),
+                    PID ! {vt, ID},
+                    loop(Datei, Map++[{PID, ID}]);
+                ID -> 
+                    util:logging(Datei, "VecID "++util:to_String(ID)++" sent to "++util:to_String(PID)++"\n"),
+                    PID ! {vt, ID},
+                    loop(Datei, Map)
+            end;
         Any -> 
             util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
-            loop(Datei)
+            loop(Datei, Map)
     end.
+
+map([], _PID) ->
+    undefined;
+map([{PID, ID} | _], PID) ->
+    ID;
+map([_ | T], PID) ->
+    map(T, PID).    

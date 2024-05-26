@@ -24,13 +24,19 @@ stop(PID) ->
 % Rückgabewert ist bei Erfolg true.
 reset(PID) -> 
     PID ! {self(), {reset}},
-    true.
+    receive
+        {replycbc, ok_reset} -> true 
+    after 1000 -> false 
+    end.
 
 % listall(): muss auf der Node des Multicast ausgeführt werden und listet alle registrierten Kommunikationseinheiten in der zugehörigen Log-Datei auf. 
 % Rückgabewert ist bei Erfolg true, sonst false.
 listall() -> 
     towerKLCcbc ! {self(), {listall}},
-    true.
+    receive
+        {replycbc, ok_listall} -> true
+    after 1000 -> false
+    end.
 
 % cbcast(<Receiver>,<MessageNumber>): muss auf der Node des Multicast ausgeführt werden und sendet die als <MessageNumber>-te beim Multicast eingetroffene Nachricht an den Empfänger <Receiver>. 
 % Dient im manuellen Zustand der manuellen Durchführuzng des Multicast. 
@@ -58,14 +64,14 @@ loop(Datei, Registered, Auto) ->
 
         % {<PID>,{multicastB,{<Message>,<VT>}}: als Nachricht. Sendet die Nachricht <Message> mit Vektorzeitstempel <VT> als ungeordneten, blockierenden Multicast an alle Gruppenmitglieder. 
         % Blockierend bedeutet, dass in der Zeit kein anderer Multicast versendet wird. <PID> ist eine PID und wird lediglich im Log vermerkt.
-        {From, {multicastB, {Message, VT}}} when is_pid(From) and is_tuple(Message) and Auto ->      
+        {From, {multicastB, {Message, VT}}} when is_pid(From) ->      
             util:logging(Datei, "multicastB: "++util:to_String(Message)++" with VT: "++util:to_String(VT)++" by: "++util:to_String(From)++"\n"),
             sendToAll(Datei, Registered, Message, VT),
             loop(Datei, Registered, Auto);
 
         % {<PID>,{multicastNB,{<Message>,<VT>}}}: als Nachricht. Sendet die Nachricht <Message> mit Vektorzeitstempel <VT> als ungeordneten, nicht blockierenden Multicast an alle Gruppenmitglieder. 
         % Nicht blockierend bedeutet, dass in der Zeit andere Multicast versendet werden können. <PID> ist eine PID und wird lediglich im Log vermerkt.
-        {From, {multicastNB, {Message, VT}}} when is_pid(From) and is_tuple(Message) and not(Auto) ->
+        {From, {multicastNB, {Message, VT}}} when is_pid(From) ->
             util:logging(Datei, "multicastNB: "++util:to_String(Message)++" with VT: "++util:to_String(VT)++" by: "++util:to_String(From)++"\n"),
             spawn(fun() -> sendToAll(Datei, Registered, Message, VT) end),
             loop(Datei, Registered, Auto);

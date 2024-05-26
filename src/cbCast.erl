@@ -15,7 +15,10 @@ init() ->
             throw({error, "Server nicht erreichbar"})            
     end,
 
-    CommCBC = spawn(fun() -> loop(Datei) end),
+    VTID = vectorC:initVT(),
+    VT = {VTID, []},
+
+    CommCBC = spawn(fun() -> loop(Datei, VT) end),
     register(cbCast,CommCBC),
     
     {Servername, Servernode} ! {self(), {register, CommCBC}},
@@ -53,17 +56,17 @@ readMessage(Comm) ->
     end.
 
 castMessage(Message, VT, Datei) -> 
-    util:logging(Datei, "Nachricht: "++util:to_String(Message)++" mit Vektorzeitstempel: "++util:to_String(VT)++" empfangen."),
+    util:logging(Datei, "Nachricht: "++util:to_String(Message)++" mit Vektorzeitstempel: "++util:to_String(VT)++" empfangen.\n"),
     {}.
 
 % {<PID>,{castMessage,{<Message>,<VT>}}}: als Nachricht. Empfängt die Nachricht <Message> mit Vektorzeitstempel <VT>. <PID> wird nicht benötigt.
 % z.B. cbCast ! {self(), {castMessage, {"msg", 12}}}.
-loop(Datei) ->
+loop(Datei, VT) ->
 	receive
         {_From, {castMessage, {Message, VT}}} ->
             castMessage(Message, VT, Datei),
-            loop(Datei);
+            loop(Datei, VT);
         Any -> 
             util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
-            loop(Datei)
+            loop(Datei, VT)
 	end.

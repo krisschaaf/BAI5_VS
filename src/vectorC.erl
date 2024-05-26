@@ -27,30 +27,79 @@ initVT() ->
     end.
 
 % myVTid(VT): gibt die ProzessID zurück, also <Pnum> des Vektorzeitstempels, als ganze Zahl.
-myVTid(VT) -> {}.
-
+myVTid({VTID, _VT}) -> VTID.
+    
 % myVTvc(VT): gibt den Vektor zurück, also den Vektorzeitstempel, als Liste aus ganzen Zahlen inklusive 0.
-myVTvc(VT) -> {}.
+myVTvc({_VTID, VT}) -> VT.
 
 % myCount(VT): gibt den eigenen Zeitstempel als ganze Zahl zurück bzw. den zugehörigen Ereigniszähler, .
-myCount(VT) -> {}.
+myCount({VTID, VT}) -> getElementByIndex(VT, VTID).
 
 % foCount(J,VT): gibt den Zeitstempel der Position J als ganze Zahl zurück bzw. den zugehörigen Ereigniszähler.
-foCount(J, VT) -> {}.
+foCount(J, {_VTID, VT}) -> getElementByIndex(VT, J).
+
+getElementByIndex(List, Index) when is_list(List), is_integer(Index), Index >= 0 ->
+    getElementByIndex(List, Index, 0).
+
+getElementByIndex([], _Index, _CurrentIndex) ->
+    undefined;
+getElementByIndex([H | _], Index, Index) ->
+    H;
+getElementByIndex([_ | T], Index, CurrentIndex) ->
+    getElementByIndex(T, Index, CurrentIndex + 1).
 
 % isVT(VT): prüft, ob VT ein Vektorzeitstempel ist. Rückgabe ist true oder false.
-isVT(VT) -> {}.
+isVT(VT) -> 
+    case VT of
+        {VTID, VTList} -> 
+            case is_integer(VTID) and is_list(VTList) and isVTListElements(VTList, 0) of
+                true -> true;
+                false -> false
+            end;
+        _ -> false
+    end.
+
+isVTListElements([], _Index) ->
+    true;
+isVTListElements([H | T], Index) when is_integer(H) ->
+    isVTListElements(T, Index + 1);
+isVTListElements(_, _) ->
+    false.
 
 % syncVT (VT1,VT2): synchronisiert zwei Vektorzeitzstempel (jeweils das Maximum, VT1 wird als eigener Zeitstempel angesehen). 
 % Rückgabe ist der neue Vektorzeitstempel.
-syncVT(VT1, VT2) -> {}.
+syncVT({_, VT1}, {_, VT2}) -> syncVT(VT1, VT2, []).
+
+syncVT([], [], SyncedVT) ->
+    SyncedVT;
+syncVT([H1 | T1], [H2 | T2], SyncedVT) ->
+    syncVT(T1, T2, SyncedVT ++ [max(H1, H2)]).
 
 % tickVT(VT): zählt den Ereigniszähler des zugehörigen Prozesses um 1 nach oben. 
 % Rückgabe ist der neue Vektorzeitstempel.
-tickVT(VT) -> {}.
+tickVT({VTID, VT}) -> {VTID, incrementElementAtIndex(VT, VTID, 0)}.
+
+incrementElementAtIndex([], _TargetIndex, _CurrentIndex) ->
+    []; 
+incrementElementAtIndex([H | T], TargetIndex, CurrentIndex) when TargetIndex == CurrentIndex ->
+    [H + 1 | T]; 
+incrementElementAtIndex([H | T], TargetIndex, CurrentIndex) ->
+    [H | incrementElementAtIndex(T, TargetIndex, CurrentIndex + 1)].
+
 
 % compVT(VT1,VT2): vergleicht Vektorzeitstempel. Rückgabe: afterVT, beforeVT, equalVT oder concurrentVT.
-compVT(VT1, VT2) -> {}.
+compVT({_, VT1}, {_, VT2}) -> 
+    case listsHaveSameElements(VT1, VT2) of
+        true -> equalVT;
+        false -> concurrentVT % TODO: fix
+    end.
+
+listsHaveSameElements([], []) ->
+    true;
+listsHaveSameElements([H1 | T1], [H2 | T2]) when H1 == H2 ->
+    listsHaveSameElements(T1, T2);
+listsHaveSameElements(_, _) ->
+    false.
 
 % aftereqVTJ(VT,VTR): vergleicht im Sinne des kausalen Multicast die Vektorzeitstempel, ob VT aftereq VTR ist, ohne Beachtung von Position J. 
 % Die Distanz wird berechnet für die Identität J des Vektorzeitstempels VTR, dem Zeitstempel der Nachricht.  
