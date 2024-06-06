@@ -15,10 +15,7 @@ init() ->
             throw({error, "Server nicht erreichbar"})            
     end,
 
-    VTID = vectorC:initVT(),
-    VT = {VTID, []},
-
-    CommCBC = spawn(fun() -> loop(Datei, VT) end),
+    CommCBC = spawn(fun() -> loop(Datei) end),
     register(cbCast,CommCBC),
     
     {Servername, Servernode} ! {self(), {register, CommCBC}},
@@ -34,12 +31,13 @@ init() ->
 
 % stop(Comm): terminiert die Kommunikationseinheit mit PID Comm. Rückgabe ist done.
 stop(Comm) -> 
-    exit(whereis(Comm), ok).
+    exit(whereis(Comm), ok),
+    unregister(cbCast).
 
 % send(Comm,Message): sendet eine Nachricht Message über die Kommunikationseinheit Comm als kausaler Multicast an alle anderen in der Gruppe.
 send(Comm, Message) -> 
     {ok, [{servername,Servername}, {servernode,Servernode}]} = file:consult("configs/towerCBC.cfg"),
-    {Servername, Servernode} ! {Comm, {multicastNB, {Message, 0}}}. % TODO: ist Comm und MulticastNB hier richtig?
+    {Servername, Servernode} ! {whereis(Comm), {multicastNB, {Message, 0}}}. % TODO: ist Comm und MulticastNB hier richtig?
 
 % received(Comm): empfängt blockierend eine Nachricht von der Kommunikationseinheit Comm. Die Rückgabe ist eine Zeichenkette.
 received(Comm) -> readMessage(Comm).
@@ -58,6 +56,11 @@ readMessage(Comm) ->
 castMessage(Message, VT, Datei) -> 
     util:logging(Datei, "Nachricht: "++util:to_String(Message)++" mit Vektorzeitstempel: "++util:to_String(VT)++" empfangen.\n"),
     {}.
+
+% Die initialisierung der VT muss aus dem richtigten Prozess heraus gestartet werden.
+loop(Datei) ->
+    VT = vectorC:initVT(),
+    loop(Datei, VT).
 
 % {<PID>,{castMessage,{<Message>,<VT>}}}: als Nachricht. Empfängt die Nachricht <Message> mit Vektorzeitstempel <VT>. <PID> wird nicht benötigt.
 % z.B. cbCast ! {self(), {castMessage, {"msg", 12}}}.

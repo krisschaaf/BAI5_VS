@@ -23,7 +23,7 @@ loop(Datei, Map) ->
         {getVecID, PID} ->
             case map(Map, PID) of
                 undefined ->
-                    ID = length(Map)+1,
+                    ID = erlang:length(Map)+1,
                     util:logging(Datei, "VecID "++util:to_String(ID)++" registered and sent to "++util:to_String(PID)++"\n"),
                     PID ! {vt, ID},
                     loop(Datei, Map++[{PID, ID}]);
@@ -42,4 +42,4 @@ map([], _PID) ->
 map([{PID, ID} | _], PID) ->
     ID;
 map([_ | T], PID) ->
-    map(T, PID).    
+    map(T, PID).

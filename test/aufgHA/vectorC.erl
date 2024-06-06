@@ -5,7 +5,7 @@
 % initVT(): erstellt einen initialen Vektorzeitstempel. Dazu nimmt sie gemäß Spezifikation in towerClock.cfg Kontakt mit der Zentrale towerClock auf, um eine Identität zu erhalten. 
 % Rückgabe ist ein initialer Vektorzeitstempel. Dieser stellt die Vektoruhr dar. Achtung: die towerClock.cfg dient nur der ADT vectorC.erl. Der Tower selbst liest diese Datei nicht ein.
 initVT() -> 
-    {ok, [{servername,Servername}, {servernode,Servernode}]} = file:consult("configs/towerClock.cfg"),
+    {ok, [{servername,Servername}, {servernode,Servernode}]} = file:consult("towerClock.cfg"),
     Datei = "logs/"++util:to_String(erlang:node())++".log",
 
     case net_adm:ping(Servernode) of
