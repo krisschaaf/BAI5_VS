@@ -2,7 +2,7 @@
 
 \subsection{CBCast Algorithmus}
 
-In einem Netzwerk laufen verschiedene Prozesse auf verschiedenen Knoten und teilen sich keinen Speicherplatz. Die Interaktion zwischen den verschiedenen Prozessen läuft soweit ausschließlich über die Weitergabe von Nachrichten und kein Prozess kennt das Verhalten anderer Prozesse \cite{CBCAST_1}. Der \textit{CBCast} (Chain-Based Broadcast) Algorithmus ist ein Algorithmus der im Bereich der verteilten Systeme zum Einsatz kommt und eine Lösung für genau diese Prozessinteraktion implementiert. Genutzt wie zum Beispiel vom ISIS Projekt \cite{isis_project} hat er sich in der Vergangenheit bereits mehrfach renommiert. 
+In einem Netzwerk laufen verschiedene Prozesse auf verschiedenen Knoten und teilen sich keinen Speicherplatz. Die Interaktion zwischen den verschiedenen Prozessen läuft soweit ausschließlich über die Weitergabe von Nachrichten und kein Prozess kennt das Verhalten anderer Prozesse \cite{CBCAST_1}. Der \textit{CBCast} (Chain-Based Broadcast) Algorithmus ist ein Algorithmus der im Bereich der verteilten Systeme zum Einsatz kommt und eine Lösung für genau diese Prozessinteraktion implementiert. Genutzt wie zum Beispiel vom ISIS Projekt \cite{isis_project} hat er sich in der Vergangenheit bereits mehrfach renommiert.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -11,13 +11,23 @@ In einem Netzwerk laufen verschiedene Prozesse auf verschiedenen Knoten und teil
 \end{center}
 \end{figure}
 
-In Abb. \ref{fig:cbcastFunction} zu sehen ist ein beispielhafter Ablauf des \textit{CBCASTs} mit drei Prozessen \textit{A}, \textit{B} und \textit{C}. VT zeigt die Vektoruhren der jeweiligen Prozesse. Hier wird der eigene Zustand und der der anderen Prozesse individuell gespeichert. Durch diese Uhr können die Prozesse trotz fehlendem geteilten Speicherplatz erkennen, ob sie mit den anderen Prozessen synchronisiert sind.\\
+In Abb. \ref{fig:cbcastFunction} zu sehen ist ein beispielhafter Ablauf des \textit{CBCASTs} mit drei Prozessen \textit{A}, \textit{B} und \textit{C}. VT zeigt die Vektoruhren der jeweiligen Prozesse. Hier wird der eigene Zeitstempel und der der anderen Prozesse individuell gespeichert. Durch diese Uhr können die Prozesse trotz fehlendem geteilten Speicherplatz erkennen, ob sie mit den anderen Prozessen synchronisiert sind.\\
 Im ersten Schritt verschickt \textit{A} eine Nachricht an alle Teilnehmer im Netzwerk. Angehängt wird die eigene Vektoruhr - nun mit \textit{A} = 1 erhöht, da dieser Prozess die Nachricht verschickt hat. Wichtig hierbei ist, dass der sendende Prozess die Nachricht immer zusätzlich an sich selber schickt, um eine sichere Synchronisation sicherstellen zu können. In Abb. \ref{fig:cbcastFunction} empfangen Prozess \textit{A} und \textit{B} nun die von \textit{A} gesendete Nachricht. Die Vektoruhren werden verglichen und da jeweils nur ein Zeiger um 1 erhöht wurde, nehmen die Prozesse die gesendete Nachricht an. Nachdem \textit{B} die Nachricht von \textit{A} empfangen hat, schickt auch dieser Prozess eine Nachricht an alle Teilnehmer. \textit{A} und \textit{B} können diese empfangen. Beim Vergleichen der Vektoruhr von \textit{C} und der von \textit{B} mitgeschickten ist aber nun eine zu große Differenz. Zwei Zeiger sind jeweils um 1 erhöht, da \textit{B} bereits die Nachricht von \textit{A} empfangen hat. Bei \textit{C} fehlt diese noch, deshalb blockiert \textit{C}. Die Nachricht von \textit{A} welche daraufhin eintrifft nimmt \textit{C} dann an.\\
 Die Zeiger in den Vektoruhren sind in vielen Implementierungen Zeitstempel der zuletzt empfangenen Nachricht.
 
 \subsection{Kommunikationseinheit}
 
-Die Kommunikationseinheiten (\textit{comm}) sind die verschiedenen Prozesse, bzw. Teilnehmer im Netzwerk. % TODO
+Die Kommunikationseinheit ermöglicht es Prozessen, welche über einen \textit{Tower} mit anderen Prozessen kommunizieren, Nachrichten zu schicken und zu empfangen. Das Interface stellt hierbei verschiedene Funktionen zum blockierenden und nicht blockierenden Senden von Nachrichten. Jeder Prozess, welcher als Kommunikationseinheit gestartet wird, empfängt bei korrekter Implementierung automatisch Nachrichten.
+
+\subsubsection{Holdback Queue}
+
+Beim Empfangen einer Nachricht, wird diese zuerst in eine \textit{Holdbackqueue} sortiert. Die \textit{Holdbackqueue} ist eine \textit{Priorityqueue} und enthält alle Nachrichten, die nicht ausgeliefert werden dürfen. Sortiert wird anhand der, der Nachricht angehängten, Vektoruhr.
+\\Ob Nachrichten auslieferbar sind und die Queue verlassen dürfen oder ob Nachrichten aus der Queue gelöscht werden müssen, wird geprüft, wenn neue Nachrichten der Queue hinzugefügt werden. Falls es zu einem Stillstand im System kommt läuft zusätzlich ein Intervall-Timer, welcher die Auslieferbarkeitsprüfung regelmäßig aufruft.
+\\Aus der Queue gelöscht werden, müssen Nachrichten welche %TODO
+
+\subsubsection{Delivery Queue}
+
+Die \textit{Deliveryqueue} ist die zweite Queue eines Kommunikationsprozesses. Sie enthält alle auslieferbaren Nachrichten und hat eine eigene Vektoruhr. Diese Vektoruhr wird synchronisiert mit jeder Vektoruhr einer, in der \textit{Deliveryqueue} neu hinzugefügten, Nachricht. 
 
 \subsection{Vektoruhr-ADT}
 
@@ -40,3 +50,38 @@ Der TowerCBC (siehe Abb. \ref{fig:towerCBC}) übernimmt in dieser Ausarbeitung d
 \end{figure}
 
 In Abb. \ref{fig:towerCBC} ist eine abstrakte Kommunikation eines Prozesses mit dem Multicast dargestellt. Über \textit{register} meldet sich der \textit{cbCast-Prozess} beim \textit{towerCBC} an. Dieser bestätigt die Anmeldung. Über \textit{multicastB (blockierend)} oder \textit{multicastNB (nicht blockierend)} kann der Prozess nun Nachrichten über den Multicast an alle Teilnehmer im Netzwerk schicken. Der Multicast wieder kann mit \textit{castMessage} Nachrichten an die Teilnehmer schicken.
+
+\subsection{Aufgabenstellung}
+
+
+Fragen:
+
+- vektorclock zählt prozesse hoch -> auf überlauf des zählers achten
+- towercbc -> auto oder manu
+    - bei manu empfängt der tower nur nachrichten. Aufrufe nur manuell von außen möglich
+    - bei auto entscheidet tower selbst wann er welche nachrichten rausschickt. Schickt z.b. direkt raus.
+- blocking/nonblocking: im manuellen zustand kann nur einer der beiden verwendet werden.
+- 
+
+
+Infos von Klauck aus der VL heute:
+
+1) Eine Nachricht verlässt die dlq wenn der anwender an entsprechender comm einheit die funktion read oder receive aufruft.
+
+2) Eine dlq hat eine eigene vektoruhr
+
+3) Beim send vom anwender schickt dieser seine Vektoruhr mit und die Nachricht wird in hbq der anderen comm  module einsortiert und eventuell verglichen mit der vektoruhr der dlq. (siehe Bild) 
+
+4) Beim sendeereignis tickt die uhr des anwenders.
+wenn sende und empfangsereignisse in der Reihenfolge unklar sein könnten, dann müsste auch beim empfangsereignis getickt werden (Bei uns aber nicht)
+
+5) im cbcast.erl steht das tick() im send() (zuerst)!
+
+6) bei read und received wird sync aufgerufen (für uhr des anwenders) und ggf. auch in der dql
+
+7) dlq kann auch länge 1 haben, macht er aber nicht so
+
+8) wenn dlq leer ist und hbq hat lieferbare nachricht, dann sollte diese direkt in die dlq ohne das irgendwas von außen kommt - durch z.B. regelmäßige zeitliche prüfungen
+
+9) Empfehlung von ihm: nachrichten mit after und beforeVT in HBQ einsortieren
+wenn concurrent, dann müssen alle geprüft werden (Wenn der vordere nicht rüberdarf, dann die danach ziemlich sicher auch nicht)

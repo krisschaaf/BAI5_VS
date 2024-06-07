@@ -26,13 +26,6 @@ initVT() ->
             false
     end.
 
-zeros(0) ->
-    [];
-zeros(N) when N < 0 ->
-    [];
-zeros(N) when N > 0 ->
-    [0 | zeros(N - 1)].
-
 % myVTid(VT): gibt die ProzessID zurück, also <Pnum> des Vektorzeitstempels, als ganze Zahl.
 myVTid({VTID, _VT}) -> VTID.
     
@@ -45,16 +38,6 @@ myCount({VTID, VT}) -> getElementByIndex(VT, VTID).
 % foCount(J,VT): gibt den Zeitstempel der Position J als ganze Zahl zurück bzw. den zugehörigen Ereigniszähler.
 foCount(J, {_VTID, VT}) -> getElementByIndex(VT, J).
 
-getElementByIndex(List, Index) when is_list(List), is_integer(Index), Index > 0 ->
-    getElementByIndex(List, Index, 1).
-
-getElementByIndex([], _Index, _CurrentIndex) ->
-    undefined;
-getElementByIndex([H | _], Index, Index) ->
-    H;
-getElementByIndex([_ | T], Index, CurrentIndex) ->
-    getElementByIndex(T, Index, CurrentIndex + 1).
-
 % isVT(VT): prüft, ob VT ein Vektorzeitstempel ist. Rückgabe ist true oder false.
 isVT(VT) -> 
     case VT of
@@ -65,13 +48,6 @@ isVT(VT) ->
             end;
         _ -> false
     end.
-
-isVTListElements([], _Index) ->
-    true;
-isVTListElements([H | T], Index) when is_integer(H) ->
-    isVTListElements(T, Index + 1);
-isVTListElements(_, _) ->
-    false.
 
 % syncVT (VT1,VT2): synchronisiert zwei Vektorzeitzstempel (jeweils das Maximum, VT1 wird als eigener Zeitstempel angesehen). 
 % Rückgabe ist der neue Vektorzeitstempel.
@@ -89,6 +65,58 @@ syncVT([H1 | T1], [H2 | T2], SyncedVT, VTID1) ->
 % Rückgabe ist der neue Vektorzeitstempel.
 tickVT({VTID, VT}) -> {VTID, incrementElementAtIndex(VT, VTID, 1)}.
 
+% compVT(VT1,VT2): vergleicht Vektorzeitstempel. Rückgabe: afterVT, beforeVT, equalVT oder concurrentVT.
+compVT({_, VT1}, {_, VT2}) ->
+    NormalizedVT1 = padWithZeros(VT1, length(VT2)),
+    NormalizedVT2 = padWithZeros(VT2, length(VT1)),
+    compareLists(NormalizedVT1, NormalizedVT2).
+
+% aftereqVTJ(VT,VTR): vergleicht im Sinne des kausalen Multicast die Vektorzeitstempel, ob VT aftereq VTR ist, ohne Beachtung von Position J. 
+% Die Distanz wird berechnet für die Identität J des Vektorzeitstempels VTR, dem Zeitstempel der Nachricht.  
+% Rückgabe: {aftereqVTJ, <Distanz an der Stelle J>} oder false. Dabei wird die Distanz berechnet, durch VT[j] - VTR[j], wobei j die Identität von VTR ist. 
+% Wenn die Distanz -1 ist, dann kann die Nachricht mit Zeitstempel VTR ausgeliefert werden.
+aftereqVTJ(VT, VTR) -> 
+    {{Id1, NewVClock1}, {Id2, NewVClock2}, {RemovedElement1, RemovedElement2}} = removeJ(VT, VTR),
+    Distance = compVT({Id1, NewVClock1}, {Id2, NewVClock2}),
+    case Distance of
+        afterVT -> {aftereqVTJ, RemovedElement1 - RemovedElement2};
+        equalVT -> {aftereqVTJ, RemovedElement1 - RemovedElement2};
+        _ -> false
+    end.
+
+
+% Hilfsfunktionen
+zeros(0) ->
+    [];
+zeros(N) when N < 0 ->
+    [];
+zeros(N) when N > 0 ->
+    [0 | zeros(N - 1)].
+
+
+getElementByIndex(List, Index) when Index > 0 ->
+    getElementByIndex(List, Index, 1).
+
+getElementByIndex([], _Index, _CurrentIndex) ->
+    undefined;
+getElementByIndex([H | _], Index, Index) ->
+    H;
+getElementByIndex([_ | T], Index, CurrentIndex) ->
+    getElementByIndex(T, Index, CurrentIndex + 1).
+
+
+isVTListElements([], _Index) ->
+    true;
+isVTListElements([H | T], Index) when is_integer(H) ->
+    isVTListElements(T, Index + 1);
+isVTListElements(_, _) ->
+    false.
+
+
+padWithZeros(VT, TargetLength) ->
+    VT ++ zeros(TargetLength - length(VT)).
+
+
 incrementElementAtIndex([], _TargetIndex, _CurrentIndex) ->
     []; 
 incrementElementAtIndex([H | T], TargetIndex, CurrentIndex) when TargetIndex == CurrentIndex ->
@@ -96,12 +124,6 @@ incrementElementAtIndex([H | T], TargetIndex, CurrentIndex) when TargetIndex == 
 incrementElementAtIndex([H | T], TargetIndex, CurrentIndex) ->
     [H | incrementElementAtIndex(T, TargetIndex, CurrentIndex + 1)].
 
-
-% compVT(VT1,VT2): vergleicht Vektorzeitstempel. Rückgabe: afterVT, beforeVT, equalVT oder concurrentVT.
-compVT({_, VT1}, {_, VT2}) ->
-    NormalizedVT1 = padWithZeros(VT1, length(VT2)),
-    NormalizedVT2 = padWithZeros(VT2, length(VT1)),
-    compareLists(NormalizedVT1, NormalizedVT2).
 
 compareLists(VT1, VT2) ->
     compareLists(VT1, VT2, equalVT).
@@ -124,20 +146,6 @@ compareLists([H1 | T1], [H2 | T2], CurrentResult) when H1 == H2 ->
     compareLists(T1, T2, CurrentResult).
 
 
-% aftereqVTJ(VT,VTR): vergleicht im Sinne des kausalen Multicast die Vektorzeitstempel, ob VT aftereq VTR ist, ohne Beachtung von Position J. 
-% Die Distanz wird berechnet für die Identität J des Vektorzeitstempels VTR, dem Zeitstempel der Nachricht.  
-% Rückgabe: {aftereqVTJ, <Distanz an der Stelle J>} oder false. Dabei wird die Distanz berechnet, durch VT[j] - VTR[j], wobei j die Identität von VTR ist. 
-% Wenn die Distanz -1 ist, dann kann die Nachricht mit Zeitstempel VTR ausgeliefert werden.
-aftereqVTJ(VT, VTR) -> 
-    {{Id1, NewVClock1}, {Id2, NewVClock2}, {RemovedElement1, RemovedElement2}} = removeJ(VT, VTR),
-    Distance = compVT({Id1, NewVClock1}, {Id2, NewVClock2}),
-    case Distance of
-        afterVT -> {aftereqVTJ, RemovedElement1 - RemovedElement2};
-        equalVT -> {aftereqVTJ, RemovedElement1 - RemovedElement2};
-        _ -> false
-    end.
-
-
 removeJ({VTID1, VT1}, {VTID2, VT2}) ->
     MaxLength = max(length(VT1), length(VT2)),
     NormalizedVT1 = padWithZeros(VT1, MaxLength),
@@ -147,6 +155,7 @@ removeJ({VTID1, VT1}, {VTID2, VT2}) ->
     {NewVT2, RemovedElement2} = remove_at(NormalizedVT2, VTID2),
 
     {{VTID1, NewVT1}, {VTID2, NewVT2}, {RemovedElement1, RemovedElement2}}.
+    
 
 remove_at(List, Index) -> remove_at(List, Index, 1, []).
 
@@ -154,9 +163,3 @@ remove_at([H | T], Index, CurrentIndex, Acc) when CurrentIndex == Index ->
     {Acc ++ T, H};
 remove_at([H | T], Index, CurrentIndex, Acc) ->
     remove_at(T, Index, CurrentIndex + 1, Acc ++ [H]).
-
-
-
-% Hilfsfunktionen
-padWithZeros(VT, TargetLength) ->
-    VT ++ zeros(TargetLength - length(VT)).
