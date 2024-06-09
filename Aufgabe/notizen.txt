@@ -1,0 +1,31 @@
+Fragen:
+
+- vektorclock zählt prozesse hoch -> auf überlauf des zählers achten
+- towercbc -> auto oder manu
+    - bei manu empfängt der tower nur nachrichten. Aufrufe nur manuell von außen möglich
+    - bei auto entscheidet tower selbst wann er welche nachrichten rausschickt. Schickt z.b. direkt raus.
+- blocking/nonblocking: im manuellen zustand kann nur einer der beiden verwendet werden.
+- 
+
+
+Infos von Klauck aus der VL heute:
+
+1) Eine Nachricht verlässt die dlq wenn der anwender an entsprechender comm einheit die funktion read oder receive aufruft.
+
+2) Eine dlq hat eine eigene vektoruhr
+
+3) Beim send vom anwender schickt dieser seine Vektoruhr mit und die Nachricht wird in hbq der anderen comm  module einsortiert und eventuell verglichen mit der vektoruhr der dlq. (siehe Bild) 
+
+4) Beim sendeereignis tickt die uhr des anwenders.
+wenn sende und empfangsereignisse in der Reihenfolge unklar sein könnten, dann müsste auch beim empfangsereignis getickt werden (Bei uns aber nicht)
+
+5) im cbcast.erl steht das tick() im send() (zuerst)!
+
+6) bei read und received wird sync aufgerufen (für uhr des anwenders) und ggf. auch in der dql
+
+7) dlq kann auch länge 1 haben, macht er aber nicht so
+
+8) wenn dlq leer ist und hbq hat lieferbare nachricht, dann sollte diese direkt in die dlq ohne das irgendwas von außen kommt - durch z.B. regelmäßige zeitliche prüfungen
+
+9) Empfehlung von ihm: nachrichten mit after und beforeVT in HBQ einsortieren
+wenn concurrent, dann müssen alle geprüft werden (Wenn der vordere nicht rüberdarf, dann die danach ziemlich sicher auch nicht)

@@ -14,7 +14,18 @@ init() ->
 % stop(<PID>): wobei <PID> die Kontaktadresse des Tower oder seine PID ist. Diese Funktion beendet den Tower. 
 % Rückgabewert bei Erfolg ist true.
 stop(PID) -> 
-    exit(whereis(PID), ok).
+    Datei = "logs/"++util:to_String(erlang:node())++".log",
+
+    PID ! {self(), {stop}},
+    receive
+        {ok_stop} -> 
+            unregister(vtKLCclockC), %TODO: get tower pid
+            true
+        after 5000 ->
+            util:logging(Datei, "Timeout: TowerClock not stopped, killing now...\n"),
+            exit(whereis(PID), ok),
+            unregister(vtKLCclockC)
+    end.
 
 loop(Datei, Map) ->
     receive
@@ -32,6 +43,8 @@ loop(Datei, Map) ->
                     PID ! {vt, ID},
                     loop(Datei, Map)
             end;
+        {From, {stop}} when is_pid(From)->
+            From ! {ok_stop};
         Any -> 
             util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
             loop(Datei, Map)
