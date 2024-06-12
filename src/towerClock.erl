@@ -19,12 +19,12 @@ stop(PID) ->
     PID ! {self(), {stop}},
     receive
         {ok_stop} -> 
-            unregister(vtKLCclockC), %TODO: get tower pid
+            % unregister(vtKLCclockC), %TODO: get tower pid
             true
         after 5000 ->
             util:logging(Datei, "Timeout: TowerClock not stopped, killing now...\n"),
-            exit(whereis(PID), ok),
-            unregister(vtKLCclockC)
+            exit(whereis(PID), ok)
+            % unregister(vtKLCclockC)
     end.
 
 loop(Datei, Map) ->

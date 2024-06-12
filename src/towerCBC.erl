@@ -23,12 +23,12 @@ stop(PID) ->
     PID ! {self(), {stop}},
     receive
         {ok_stop} -> 
-            unregister(towerKLCcbc), %TODO: get tower pid
+            % unregister(towerKLCcbc), %TODO: get tower pid
             true
         after 5000 ->
             util:logging(Datei, "Timeout: TowerCBC not stopped, killing now...\n"),
-            exit(whereis(PID), ok),
-            unregister(towerKLCcbc)
+            exit(whereis(PID), ok)
+            % unregister(towerKLCcbc)
     end.
 
 % reset(<PID>): wobei <PID> die Kontaktadresse des Multicast ist. Diese Funktion setzt den Multicast wieder in den initialen Zustand. 
@@ -54,9 +54,10 @@ listall() ->
 % Rückgabewert ist bei Erfolg true, sonst false. 
 % Achtung: um den manuellen Modus nutzen zu können, muss die Kommunikationseinheit cbCast.erl mit multicastNB senden!
 cbcast(Receiver, MessageNumber) -> 
-    towerKLCcbc ! {self(), {Receiver, MessageNumber}},
+    towerKLCcbc ! {self(), {multicastM, Receiver, MessageNumber}},
     receive
-        {replycbc, ok_send} -> true
+        {replycbc, ok_send} -> true;
+        {replycbc, error_send} -> false
     after 1000 -> false
     end.
 
@@ -94,11 +95,16 @@ loop(Datei, Registered, Auto, Buffer) ->
 
         % {<PID>,{multicastM,<CommNR>,<MessageNR>}}: als Nachricht. Sendet die vorhandene Nachricht <MessageNR> an die registrierte Kommunikationseinheit  <CommNR>. 
         % Dies geht nur im Zustand manu.
-        {From, {multicastM, CommNR, MessageNR}} when is_pid(CommNR) and not(Auto) -> 
-            {Message, VT} = getElementByIndex(Buffer, MessageNR),
-            CommNR ! {self(), {castMessage, {Message, VT}}},
-            util:logging(Datei, "Send '"++util:to_String(Message)++"' to "++util:to_String(CommNR)++"\n"),
-            From ! {replycbc, ok_send},
+        {From, {multicastM, CommNR, MessageNR}} when not(Auto) -> 
+            Result = getElementByIndex(Buffer, MessageNR),
+            case Result of
+                {Message, VT} -> 
+                    CommNR ! {self(), {castMessage, {Message, VT}}},
+                    util:logging(Datei, "Send '"++util:to_String(Message)++"' to "++util:to_String(CommNR)++"\n"),
+                    From ! {replycbc, ok_send};
+                _ -> 
+                    From ! {replycbc, error_send}
+            end,
             loop(Datei, Registered, Auto, Buffer); %TODO: Remove Message from Buffer??
 
         % {<PID>,{reset}}: als Nachricht. Setzt den Multicast wieder in den initialen Zustand.

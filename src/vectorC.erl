@@ -10,10 +10,10 @@ initVT() ->
 
     case net_adm:ping(Servernode) of
         pong -> 
-            util:logging(Datei, "TowerClock "++util:to_String(Servername)++" von Server "++util:to_String(Servernode)++" per ping eingebunden\n");
+            util:logging(Datei, "TowerClock "++util:to_String(Servername)++" integrated via ping by Server "++util:to_String(Servernode)++"\n");
         pang -> 
-            util:logging(Datei, "TowerClock "++util:to_String(Servername)++" von Server "++util:to_String(Servernode)++" per ping nicht eingebunden\n"),
-            throw({error, "Server nicht erreichbar"})          
+            util:logging(Datei, "TowerClock "++util:to_String(Servername)++" not integrated via ping by Server "++util:to_String(Servernode)++" per ping nicht eingebunden\n"),
+            throw({error, "Server not reachable"})          
     end,
 
     {Servername, Servernode} ! {getVecID, self()},

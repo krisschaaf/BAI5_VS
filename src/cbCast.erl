@@ -9,13 +9,13 @@ init() ->
 
     case net_adm:ping(Servernode) of
         pong -> 
-            util:logging(Datei, "TowerCBC "++util:to_String(Servername)++" von Server "++util:to_String(Servernode)++" per ping eingebunden\n");
+            util:logging(Datei, "TowerCBC "++util:to_String(Servername)++" integrated via ping by Server "++util:to_String(Servernode)++"\n");
         pang -> 
-            util:logging(Datei, "TowerCBC "++util:to_String(Servername)++" von Server "++util:to_String(Servernode)++" per ping nicht eingebunden\n"),
-            throw({error, "Server nicht erreichbar"})            
+            util:logging(Datei, "TowerCBC "++util:to_String(Servername)++" not integrated via ping by Server "++util:to_String(Servernode)++"\n"),
+            throw({error, "Server not reachable"})            
     end,
 
-    CommCBC = spawn(fun() -> loop(Datei) end),
+    CommCBC = spawn(fun() -> loop(Datei, {Servername, Servernode}) end),
     register(cbCast,CommCBC),
     
     {Servername, Servernode} ! {self(), {register, CommCBC}},
@@ -36,88 +36,180 @@ stop(Comm) ->
     Comm ! {self(), {stop}},
     receive
         {ok_stop} -> 
-            unregister(cbCast), %TODO: get Comm pid
+            % unregister(cbCast), %TODO: get Comm pid
             done
         after 5000 ->
             util:logging(Datei, "Timeout: CbCast not stopped, killing now...\n"),
-            exit(whereis(Comm), ok),
-            unregister(cbCast)
+            exit(whereis(Comm), ok)
+            % unregister(cbCast)
     end.
 
 % send(Comm,Message): sendet eine Nachricht Message über die Kommunikationseinheit Comm als kausaler Multicast an alle anderen in der Gruppe.
 send(Comm, Message) -> 
-    {ok, [{servername,Servername}, {servernode,Servernode}]} = file:consult("configs/towerCBC.cfg"),
     Datei = "logs/"++util:to_String(erlang:node())++".log",
 
-    cbCast ! {self(), {tickVT}}, % VT um 1 erhöhen
+    Comm ! {self(), {send, {Comm, Message}}},
     receive 
-        {ok_tickVT, VT} -> 
-            {Servername, Servernode} ! {whereis(Comm), {multicastNB, {Message, VT}}}, % TODO: ist Comm und MulticastNB hier richtig?
-            util:logging(Datei, "Message '"++util:to_String(Servername)++" with VT "++util:to_String(VT)++"' sent to "++util:to_String(Comm)++"\n"),
-            pushDLQ(Message, VT)
+        {ok_send} -> 
+            done
         after 1000 -> 
-            util:logging(Datei, "Timeout: Message '"++util:to_String(Servername)+"' could not be sent\n")
+            util:logging(Datei, "Timeout: Message '"++util:to_String(Message)+"' could not be sent\n")
     end.
 
 % received(Comm): empfängt blockierend eine Nachricht von der Kommunikationseinheit Comm. Die Rückgabe ist eine Zeichenkette.
 received(Comm) -> 
-    readMessage(Comm).
+    Comm ! {self(), {getMessage, true}},
+    receive 
+        {ok_getMessage, {true, Message}} -> Message
+    end.
 
 % read(Comm): empfängt nicht blockierend eine Nachricht von der Kommunikationseinheit Comm. 
 % Wenn keine Nachricht vorhanden ist, wird null zurück gegeben, sonst eine Zeichenkette.
-read(Comm) -> spawn(fun() -> readMessage(Comm) end).
-
-readMessage(Comm) ->
+read(Comm) -> 
     Datei = "logs/"++util:to_String(erlang:node())++".log",
 
-    Comm ! {self(), readMessage},
+    Comm ! {self(), {getMessage, false}}, %TODO: muss hierfür ein Prozess gestartet werden? Soll die Kommunikationseinheit nicht blockieren oder soll der Prozess nicht blockieren?
     receive 
-        {ok_readMessage, Message} -> 
-            case Message of
-                "" -> null;
-                _ -> Message
-            end
-        after 1000 -> util:logging(Datei, "Timeout: Could not receive Message\n")
+        {ok_getMessage, {false, Message}} -> Message
+        after 1000 -> util:logging(Datei, "Timeout: Could not read Message\n")
     end.
 
-castMessage(Message, VT, Datei) -> 
-    util:logging(Datei, "Nachricht: "++util:to_String(Message)++" mit Vektorzeitstempel: "++util:to_String(VT)++" empfangen.\n"),
-    pushHBQ(Message, VT),
-    {}.
-
 % Die initialisierung der VT muss aus dem richtigten Prozess heraus gestartet werden.
-loop(Datei) ->
+loop(Datei, TowerCBC) ->
     VT = vectorC:initVT(),
-    loop(Datei, VT, [], {[], VT}).
+    Queues = spawn(fun() -> loopQueues(Datei, VT, [], {[], VT}) end),
+    loop(Datei, TowerCBC, Queues).
 
-% {<PID>,{castMessage,{<Message>,<VT>}}}: als Nachricht. Empfängt die Nachricht <Message> mit Vektorzeitstempel <VT>. <PID> wird nicht benötigt.
-% z.B. cbCast ! {self(), {castMessage, {"msg", 12}}}.
-loop(Datei, VT, HBQ, DLQ) ->
+
+loop(Datei, TowerCBC, Queues) ->
 	receive
+        % {<PID>,{castMessage,{<Message>,<VT>}}}: als Nachricht. Empfängt die Nachricht <Message> mit Vektorzeitstempel <VT>. <PID> wird nicht benötigt.
         {_From, {castMessage, {Message, NewVT}}} ->
-            castMessage(Message, NewVT, Datei),
-            loop(Datei, VT, HBQ, DLQ);
-        {From, {readMessage}} when is_pid(From)->
-            From ! {ok_readMessage, popDLQ(DLQ)},
-            loop(Datei, VT, HBQ, DLQ);
-        {From, {tickVT}} when is_pid(From) ->
-            NewVT = vectorC:tickVT(VT),
-            From ! {ok_tickVT, NewVT},
-            loop(Datei, NewVT, HBQ, DLQ);
+            util:logging(Datei, "Message: "++util:to_String(Message)++" with Timestamp: "++util:to_String(NewVT)++" casted.\n"),
+            Queues ! {self(), {pushHBQ, {Message, NewVT}}}, % TODO: check HBQ and DLQ
+            receive
+                {ok_pushHBQ} -> ok
+                after 1000 -> util:logging(Datei, "Timeout: Could not push Message to HBQ\n")
+            end,
+            loop(Datei, TowerCBC, Queues);
+        
+        {From, {getMessage, Blocking}} when is_pid(From)->
+            Queues ! {self(), {popDLQ}},
+            receive 
+                {ok_popDLQ, Msg} ->
+                    case Msg of
+                        {Message, MsgVT} -> 
+                            util:logging(Datei, "Message: "++util:to_String(Message)++" with Timestamp: "++util:to_String(MsgVT)++" read.\n"),
+                            From ! {ok_getMessage, {Blocking, Message}},
+                            Queues ! {self(), {syncVT, {MsgVT}}},
+                            receive
+                                {ok_syncVT, _} -> loop(Datei, TowerCBC, Queues)
+                                after 1000 -> util:logging(Datei, "Timeout: Could not sync VT\n")
+                            end;
+                        {} -> 
+                            case Blocking of
+                                true -> 
+                                    util:logging(Datei, "Waiting on Message\n"),
+                                    receive
+                                        {NewFrom, {stop}} when is_pid(NewFrom)->
+                                            NewFrom ! {ok_stop};
+                                        {_From, {castMessage, {Message, NewVT}}} ->
+                                            util:logging(Datei, "Message: "++util:to_String(Message)++" with Timestamp: "++util:to_String(NewVT)++" received.\n"),
+                                            Queues ! {self(), {pushHBQ, {Message, NewVT}}}, % TODO: check HBQ and DLQ
+                                            receive
+                                                {ok_pushHBQ} -> self() ! {From, {getMessage, true}}  
+                                                after 1000 -> util:logging(Datei, "Timeout: Could not push Message to HBQ\n")
+                                            end
+                                    end;
+                                false -> 
+                                    From ! {ok_getMessage, {false, null}},
+                                    loop(Datei, TowerCBC, Queues)
+                            end;
+                        _ -> error
+                    end
+                after 1000 -> util:logging(Datei, "Timeout: Could not pop Message from DLQ\n")
+            end,
+            loop(Datei, TowerCBC, Queues);
+       
+        {From, {send, {Comm, Message}}} when is_pid(From)->
+            Queues ! {self(), {tickVT}},
+            receive
+                {ok_tickVT, NewVT} -> 
+                    TowerCBC ! {self(), {multicastNB, {Message, NewVT}}}, % TODO: ist Comm und MulticastNB hier richtig? nur manuell?
+                    util:logging(Datei, "Message "++util:to_String(Message)++" with VT "++util:to_String(NewVT)++" sent from "++util:to_String(Comm)++"\n"),
+                    Queues ! {self(), {pushDLQ, {Message, NewVT}}},
+                    receive
+                        {ok_pushDLQ} -> From ! {ok_send}
+                        after 1000 -> util:logging(Datei, "Timeout: Could not push Message to DLQ\n")
+                    end,
+                    loop(Datei, TowerCBC, Queues)
+                after 1000 -> util:logging(Datei, "Timeout: Could not tick VT\n")
+            end;
+        
         {From, {stop}} when is_pid(From)->
             From ! {ok_stop};
+        
         Any -> 
             util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
-            loop(Datei, VT, HBQ, DLQ)
+            loop(Datei, TowerCBC, Queues)
 	end.
 
-%TODO: implement
-pushHBQ(Message, VT) ->
-    {}.
+loopQueues(Datei, VT, HBQ, DLQ) ->
+    receive
+        {From, {pushHBQ, {Message, NewVT}}} when is_pid(From) ->
+            NewHBQ = pushHBQ(Message, NewVT, HBQ),
+            From ! {ok_pushHBQ},
+            loopQueues(Datei, VT, NewHBQ, DLQ); %TODO: VT ?
+
+        {From, {pushDLQ, {Message, NewVT}}} when is_pid(From) ->
+            NewDLQ = pushDLQ(Message, NewVT, DLQ),
+            From ! {ok_pushDLQ},
+            loopQueues(Datei, VT, HBQ, NewDLQ); % TODO: VT ?
+
+        {From, {popDLQ}} when is_pid(From) ->
+            case popDLQ(DLQ) of
+                {NewDLQ, {Message, NewVT}} -> 
+                    From ! {ok_popDLQ, {Message, NewVT}},
+                    loopQueues(Datei, VT, HBQ, NewDLQ); %TODO: VT ?
+                {NewDLQ, {}} -> 
+                    From ! {ok_popDLQ, {}},
+                    loopQueues(Datei, VT, HBQ, NewDLQ);
+                _ -> error
+            end;
+
+        {From, {checkQueues}} when is_pid(From) ->
+            {NewHBQ, NewDLQ} = checkQueues(HBQ, DLQ),
+            From ! {ok_checkQueues},
+            loopQueues(Datei, VT, NewHBQ, NewDLQ);
+
+        {From, {syncVT, {AsyncVT}}} when is_pid(From) ->
+            NewVT = vectorC:syncVT(VT, AsyncVT),
+            From ! {ok_syncVT, NewVT},
+            loopQueues(Datei, NewVT, HBQ, DLQ);
+
+        {From, {tickVT}} -> 
+            NewVT = vectorC:tickVT(VT),
+            From ! {ok_tickVT, NewVT},
+            loopQueues(Datei, NewVT, HBQ, DLQ);
+
+        Any -> 
+            util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
+            loopQueues(Datei, VT, HBQ, DLQ)
+    end.
 
 %TODO: implement
-pushDLQ(Message, VT) -> 
-    %TODO sync DLQ VT here
-    {}.
-popDLQ(DLQ) -> {}.
+pushHBQ(Message, VT, HBQ) ->
+    HBQ ++ [{Message, VT}].
+
+%TODO: implement
+pushDLQ(Message, VT, DLQ) -> 
+    %TODO: sync DLQ VT here
+    {Queue, OldVT} = DLQ,
+    NewQueue = Queue ++ [{Message, VT}],
+    {NewQueue, OldVT}. %TODO: VT?
+
+popDLQ({[], VT}) -> {{[], VT}, {}};
+popDLQ({[HeadMsg|TailMsgList], VT}) -> {{TailMsgList, VT}, HeadMsg}.
+
+checkQueues(HBQ, DLQ) -> {}.
 

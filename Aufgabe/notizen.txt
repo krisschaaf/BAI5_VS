@@ -29,3 +29,13 @@ wenn sende und empfangsereignisse in der Reihenfolge unklar sein könnten, dann 
 
 9) Empfehlung von ihm: nachrichten mit after und beforeVT in HBQ einsortieren
 wenn concurrent, dann müssen alle geprüft werden (Wenn der vordere nicht rüberdarf, dann die danach ziemlich sicher auch nicht)
+
+
+Fragen für Praktikum morgen:
+
+- Warum ist der multicastNB im manuellen Modus -> send() vom cbCast an multicastNB
+- Was soll mit den concurrentVT Nachrichten in der HBQ passieren?
+- Sollen Nachrichten im manuellen Modus aus dem Buffer vom TowerCBC gelöscht werden?
+- Soll read gar nicht blockieren oder darf es kurz blockieren?
+- Philipps Compiler Problem
+- Tests testCBC:test() botNodeA??
