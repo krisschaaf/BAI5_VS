@@ -33,9 +33,32 @@ wenn concurrent, dann müssen alle geprüft werden (Wenn der vordere nicht rübe
 
 Fragen für Praktikum morgen:
 
-- Warum ist der multicastNB im manuellen Modus -> send() vom cbCast an multicastNB
+- Warum ist der multicastNB im manuellen Modus
+    -> Keine Ahnung warum, ist so vorgegeben. send() sendet vom cbCast an multicastNB
+
 - Was soll mit den concurrentVT Nachrichten in der HBQ passieren?
-- Sollen Nachrichten im manuellen Modus aus dem Buffer vom TowerCBC gelöscht werden?
+    -> darf überall einsortiert werden soll, vgl zahlen mit farben. erst in dlq wenn auslieferbar
+    -> einsortieren und wenn man auf eine trifft die concurrent ist, dann dahin einsortieren
+
+- Sollen Nachrichten im manuellen Modus aus dem Buffer vom TowerCBC gelöscht werden? 
+    -> Nein, Index startet bei 1
+
 - Soll read gar nicht blockieren oder darf es kurz blockieren?
+    -> Letzteres
+
 - Philipps Compiler Problem
+    -> Mail
+
 - Tests testCBC:test() botNodeA??
+    -> Nur Nodes starten und dann die test() Funktion
+
+Diagnose?
+
+Realisierung
+- Es muss nicht auf alle Schnittstellen eingegangen werden
+- Wenn Diagramme (nicht Sequenzdiagramme) entfernt werden, dann soll kein Inhalt verloren gehen
+- Wenn Sachen aus dem Entwurf nicht umgesetzt werden können, dann hier erwähnen
+- Tests
+
+Entwurf
+- Alle Schnittstellen sollen aufgelistet werden

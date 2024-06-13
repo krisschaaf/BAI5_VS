@@ -9,10 +9,13 @@ init(Config) ->
     Datei = "logs/"++util:to_String(erlang:node())++".log",
     case Config of
         auto -> TowerCBC = spawn(fun() -> loop(Datei, [], true, []) end);
-        manu -> TowerCBC = spawn(fun() -> loop(Datei, [], false, []) end)
+        manu -> TowerCBC = spawn(fun() -> loop(Datei, [], false, []) end);
+        _ -> 
+            throw({error, "Invalid mode"}),
+            TowerCBC = null
     end,
     register(towerKLCcbc, TowerCBC),
-    util:logging(Datei, "TowerCBC initialized with PID: "++util:to_String(TowerCBC)++" on Node "++util:to_String(erlang:node())++"\n"),
+    util:logging(Datei, "TowerCBC initialized with Mode: "++util:to_String(Config)++" and PID: "++util:to_String(TowerCBC)++" on Node "++util:to_String(erlang:node())++"\n"),
     TowerCBC.
 
 % stop(<PID>): wobei <PID> die Kontaktadresse des Multicast ist. Diese Funktion beendet den Multicast. 
@@ -84,34 +87,42 @@ loop(Datei, Registered, Auto, Buffer) ->
         {From, {multicastB, {Message, VT}}} when is_pid(From) ->      
             util:logging(Datei, "multicastB: "++util:to_String(Message)++" with VT: "++util:to_String(VT)++" by: "++util:to_String(From)++"\n"),
             sendToAll(Datei, Registered, Message, VT),
-            loop(Datei, Registered, Auto, Buffer);
+            loop(Datei, Registered, Auto, Buffer ++ [{Message, VT}]);
 
         % {<PID>,{multicastNB,{<Message>,<VT>}}}: als Nachricht. Sendet die Nachricht <Message> mit Vektorzeitstempel <VT> als ungeordneten, nicht blockierenden Multicast an alle Gruppenmitglieder. 
         % Nicht blockierend bedeutet, dass in der Zeit andere Multicast versendet werden können. <PID> ist eine PID und wird lediglich im Log vermerkt.
-        {From, {multicastNB, {Message, VT}}} when is_pid(From) and not(Auto)->
+        {From, {multicastNB, {_, _}}} when is_pid(From) and Auto->
+            util:logging(Datei, "MulticastNB not allowed in auto mode\n"),
+            loop(Datei, Registered, Auto, Buffer);
+        {From, {multicastNB, {Message, VT}}} when is_pid(From) and not(Auto) ->
             util:logging(Datei, "multicastNB: "++util:to_String(Message)++" with VT: "++util:to_String(VT)++" by: "++util:to_String(From)++"\n"),
             spawn(fun() -> sendToAll(Datei, Registered, Message, VT) end),
-            loop(Datei, Registered, Auto, Buffer);
+            loop(Datei, Registered, Auto, Buffer ++ [{Message, VT}]);
 
         % {<PID>,{multicastM,<CommNR>,<MessageNR>}}: als Nachricht. Sendet die vorhandene Nachricht <MessageNR> an die registrierte Kommunikationseinheit  <CommNR>. 
         % Dies geht nur im Zustand manu.
-        {From, {multicastM, CommNR, MessageNR}} when not(Auto) -> 
-            Result = getElementByIndex(Buffer, MessageNR),
+        {From, {multicastM, _, _}} when Auto-> 
+            util:logging(Datei, "MulticastM not allowed in auto mode\n"),
+            From ! {replycbc, error_send},
+            loop(Datei, Registered, Auto, Buffer);
+        {From, {multicastM, CommNR, MessageNR}} when is_pid(From) and not(Auto)-> 
+            Result = getElementByIndex(Buffer, MessageNR - 1), % Buffer Index beginnt bei 0
+            util:logging(Datei, util:to_String(Result)++"\n"),
             case Result of
                 {Message, VT} -> 
                     CommNR ! {self(), {castMessage, {Message, VT}}},
-                    util:logging(Datei, "Send '"++util:to_String(Message)++"' to "++util:to_String(CommNR)++"\n"),
+                    util:logging(Datei, "Send "++util:to_String(Message)++" to "++util:to_String(CommNR)++"\n"),
                     From ! {replycbc, ok_send};
                 _ -> 
                     From ! {replycbc, error_send}
             end,
-            loop(Datei, Registered, Auto, Buffer); %TODO: Remove Message from Buffer??
+            loop(Datei, Registered, Auto, Buffer);
 
         % {<PID>,{reset}}: als Nachricht. Setzt den Multicast wieder in den initialen Zustand.
         % <PID> erhält als Antwort {replycbc,ok_reset}.
         {From, {reset}} ->
             From ! {replycbc, ok_reset},
-            loop(Datei, [], Auto, Buffer);
+            loop(Datei, [], Auto, []);
 
         % {<PID>,{listall}}: als Nachricht. Listet alle registrierten Kommunikationseinheiten in der zugehörigen Log-Datei auf.
         % <PID> erhält als Antwort {replycbc,ok_listall}.

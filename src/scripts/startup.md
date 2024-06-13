@@ -7,5 +7,3 @@
     erl -sname 'cbCast3@MacBook-Air-von-Kristoffer' -setcookie zumsl
 
     net_adm:ping('towerClock@MacBook-Air-von-Kristoffer').
-
-## Fragen:
