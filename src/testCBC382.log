@@ -1,0 +1,23 @@
+testCBC-'towerCBC@MacBook-Air-von-Kristoffer' Startzeit: 20.06 18:34:16,382|testCBC.cfg erfolgreich in <0.91.0> gelesen.
+testCBC: towerClock vtKLCclockC von Server 'towerClock@MacBook-Air-von-Kristoffer' per ping eingebunden
+testCBC: botA commbot von Server 'botA@MacBook-Air-von-Kristoffer' per ping eingebunden
+testCBC: botB commbot von Server 'botB@MacBook-Air-von-Kristoffer' per ping eingebunden
+testCBC: botC commbot von Server 'botC@MacBook-Air-von-Kristoffer' per ping eingebunden
+testCBC: TowerCBC (<0.115.0>) und TowerClock (<14974.96.0>entfernt gestartet
+testCBC: BotA (<14967.113.0>), BotB (<14968.113.0>) und BotC (<14969.113.0>) entfernt gestartet
+Nachrichten 1: beige, 2: gruen, 3: lila an Multicast gesendet.
+Nachrichten per Multicast zugestellt: A lila; B gruen; C beige,gruen,lila.
+	>>>Empfange Nachrichten: A "beige" (beige); B "gruen" (gruen); C "gruen" (gruen);
+Nachrichten per Multicast zugestellt: A beige; B lila.
+	>>>Empfange Nachrichten: A "lila" (lila); B ok (null); C "beige" (beige);
+Nachrichten per Multicast zugestellt: A gruen; B beige.
+	>>>Empfange Nachrichten: A "gruen" (gruen); B "beige" (beige)|"lila" (lila); C "lila" (lila);
+Test für lokal Kausal und Nebenläufig beendet.
+
+Nachrichte 4: beigeK1 an Multicast gesendet.
+Nachrichten per Multicast zugestellt: A beigeK1; C beigeK1.
+	>>>Empfange Nachrichten: A "beigeK1" (beigeK1); B ok (null); C "beigeK1" (beigeK1);
+Nachrichten 5: gruenK1 an Multicast gesendet.
+Nachrichten 6: lilaK1 an Multicast gesendet.
+Nachrichten per Multicast zugestellt: A lilaK1; B lilaK1; C lilaK1.
+Nachrichten per Multicast zugestellt: A gruenK1; B gruenK1,beigeK1; C gruenK1.

@@ -70,7 +70,7 @@ loop(Datei, Registered, Auto, Buffer) ->
         % <PID> erhält als Antwort {replycbc,ok_existing} wenn er bereits registriert wurde oder {replycbc,ok_registered} wenn er neu registriert wurde. 
         % Der Multicast wird an <RPID> gesendet.
         {From, {register, RPID}} when is_pid(From) and is_pid(RPID) ->
-            case lists:member(RPID, Registered) of
+            case lists:member(RPID, Registered) of %TODO: remove lists:member
                 true ->
                     util:logging(Datei, "existing "++util:to_String(RPID)++"\n"),
                     From ! {replycbc, ok_existing},
@@ -96,7 +96,6 @@ loop(Datei, Registered, Auto, Buffer) ->
             loop(Datei, Registered, Auto, Buffer);
         {From, {multicastNB, {Message, VT}}} when is_pid(From) and not(Auto) ->
             util:logging(Datei, "multicastNB: "++util:to_String(Message)++" with VT: "++util:to_String(VT)++" by: "++util:to_String(From)++"\n"),
-            spawn(fun() -> sendToAll(Datei, Registered, Message, VT) end),
             loop(Datei, Registered, Auto, Buffer ++ [{Message, VT}]);
 
         % {<PID>,{multicastM,<CommNR>,<MessageNR>}}: als Nachricht. Sendet die vorhandene Nachricht <MessageNR> an die registrierte Kommunikationseinheit  <CommNR>. 
@@ -106,11 +105,12 @@ loop(Datei, Registered, Auto, Buffer) ->
             From ! {replycbc, error_send},
             loop(Datei, Registered, Auto, Buffer);
         {From, {multicastM, CommNR, MessageNR}} when is_pid(From) and not(Auto)-> 
+            Comm = getElementByIndex(Registered, CommNR - 1), % Receiver Index beginnt bei 0
             Result = getElementByIndex(Buffer, MessageNR - 1), % Buffer Index beginnt bei 0
             util:logging(Datei, util:to_String(Result)++"\n"),
             case Result of
                 {Message, VT} -> 
-                    CommNR ! {self(), {castMessage, {Message, VT}}},
+                    Comm ! {self(), {castMessage, {Message, VT}}},
                     util:logging(Datei, "Send "++util:to_String(Message)++" to "++util:to_String(CommNR)++"\n"),
                     From ! {replycbc, ok_send};
                 _ -> 

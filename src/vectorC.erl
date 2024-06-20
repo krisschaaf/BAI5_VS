@@ -5,7 +5,7 @@
 % initVT(): erstellt einen initialen Vektorzeitstempel. Dazu nimmt sie gemäß Spezifikation in towerClock.cfg Kontakt mit der Zentrale towerClock auf, um eine Identität zu erhalten. 
 % Rückgabe ist ein initialer Vektorzeitstempel. Dieser stellt die Vektoruhr dar. Achtung: die towerClock.cfg dient nur der ADT vectorC.erl. Der Tower selbst liest diese Datei nicht ein.
 initVT() -> 
-    {ok, [{servername,Servername}, {servernode,Servernode}]} = file:consult("configs/towerClock.cfg"),
+    {ok, [{servername,Servername}, {servernode,Servernode}]} = file:consult("towerClock.cfg"),
     Datei = "logs/"++util:to_String(erlang:node())++".log",
 
     case net_adm:ping(Servernode) of
@@ -67,8 +67,8 @@ tickVT({VTID, VT}) -> {VTID, incrementElementAtIndex(VT, VTID, 1)}.
 
 % compVT(VT1,VT2): vergleicht Vektorzeitstempel. Rückgabe: afterVT, beforeVT, equalVT oder concurrentVT.
 compVT({_, VT1}, {_, VT2}) ->
-    NormalizedVT1 = padWithZeros(VT1, length(VT2)),
-    NormalizedVT2 = padWithZeros(VT2, length(VT1)),
+    NormalizedVT1 = padWithZeros(VT1, erlang:length(VT2)),
+    NormalizedVT2 = padWithZeros(VT2, erlang:length(VT1)),
     compareLists(NormalizedVT1, NormalizedVT2).
 
 % aftereqVTJ(VT,VTR): vergleicht im Sinne des kausalen Multicast die Vektorzeitstempel, ob VT aftereq VTR ist, ohne Beachtung von Position J. 
@@ -76,12 +76,19 @@ compVT({_, VT1}, {_, VT2}) ->
 % Rückgabe: {aftereqVTJ, <Distanz an der Stelle J>} oder false. Dabei wird die Distanz berechnet, durch VT[j] - VTR[j], wobei j die Identität von VTR ist. 
 % Wenn die Distanz -1 ist, dann kann die Nachricht mit Zeitstempel VTR ausgeliefert werden.
 aftereqVTJ(VT, VTR) -> 
+    Datei = "logs/"++util:to_String(erlang:node())++".log",
     {{Id1, NewVClock1}, {Id2, NewVClock2}, {RemovedElement1, RemovedElement2}} = removeJ(VT, VTR),
     Distance = compVT({Id1, NewVClock1}, {Id2, NewVClock2}),
     case Distance of
-        afterVT -> {aftereqVTJ, RemovedElement1 - RemovedElement2};
-        equalVT -> {aftereqVTJ, RemovedElement1 - RemovedElement2};
-        _ -> false
+        afterVT -> 
+            util:logging(Datei, "VT is after VTR with Distance "++util:to_String(RemovedElement1 - RemovedElement2)++".\n"),
+            {aftereqVTJ, RemovedElement1 - RemovedElement2};
+        equalVT -> 
+            util:logging(Datei, "VT is equal VTR with Distance "++util:to_String(RemovedElement1 - RemovedElement2)++".\n"),
+            {aftereqVTJ, RemovedElement1 - RemovedElement2};
+        _ -> 
+            util:logging(Datei, "aftereqVTJ false.\n"),
+            false
     end.
 
 

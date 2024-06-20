@@ -1,0 +1,493 @@
+testCBC-'towerCBC@MacBook-Air-von-Kristoffer' Startzeit: 17.06 20:14:37,566|testCBC.cfg erfolgreich in <0.93.0> gelesen.
+testCBC: towerClock vtKLCclockC von Server 'towerClock@MacBook-Air-von-Kristoffer' per ping eingebunden
+testCBC: botA commbot von Server 'botA@MacBook-Air-von-Kristoffer' per ping eingebunden
+testCBC: botB commbot von Server 'botB@MacBook-Air-von-Kristoffer' per ping eingebunden
+testCBC: botC commbot von Server 'botC@MacBook-Air-von-Kristoffer' per ping eingebunden
+TowerCBC initialized with Mode: manu and PID: <0.112.0> on Node 'towerCBC@MacBook-Air-von-Kristoffer'
+TowerClock initialized with PID: <0.97.0> on Node 'towerClock@MacBook-Air-von-Kristoffer'
+registered <10540.118.0>
+towerCBC 'towerCBC@MacBook-Air-von-Kristoffer' von Server towerKLCcbc per ping eingebunden
+testCBC: Kommunikationsbot commbot mit PID "<0.118.0>" auf node 'botA@MacBook-Air-von-Kristoffer' registriert
+cbCast-botA@MacBook-Air-von-Kristoffer-KLC Startzeit: 17.06 20:14:38,546| mit PID <0.118.0>
+Beim TowerCBC registriert:ok_registered
+VecID 1 registered and sent to <10464.118.0>
+TowerClock vtKLCclockC von Server 'towerClock@MacBook-Air-von-Kristoffer' per ping eingebunden
+VecID received: 1
+registered <10541.118.0>
+towerCBC 'towerCBC@MacBook-Air-von-Kristoffer' von Server towerKLCcbc per ping eingebunden
+testCBC: Kommunikationsbot commbot mit PID "<0.118.0>" auf node 'botB@MacBook-Air-von-Kristoffer' registriert
+cbCast-botB@MacBook-Air-von-Kristoffer-KLC Startzeit: 17.06 20:14:39,435| mit PID <0.118.0>
+Beim TowerCBC registriert:ok_registered
+VecID 2 registered and sent to <10501.118.0>
+TowerClock vtKLCclockC von Server 'towerClock@MacBook-Air-von-Kristoffer' per ping eingebunden
+VecID received: 2
+towerCBC 'towerCBC@MacBook-Air-von-Kristoffer' von Server towerKLCcbc per ping eingebunden
+registered <10542.118.0>
+testCBC: Kommunikationsbot commbot mit PID "<0.118.0>" auf node 'botC@MacBook-Air-von-Kristoffer' registriert
+cbCast-botC@MacBook-Air-von-Kristoffer-KLC Startzeit: 17.06 20:14:40,327| mit PID <0.118.0>
+VecID 3 registered and sent to <10502.118.0>
+Beim TowerCBC registriert:ok_registered
+TowerClock vtKLCclockC von Server 'towerClock@MacBook-Air-von-Kristoffer' per ping eingebunden
+VecID received: 3
+testCBC: TowerCBC (<0.112.0>) und TowerClock (<10547.96.0>entfernt gestartet
+testCBC: BotA (<10540.113.0>), BotB (<10541.113.0>) und BotC (<10542.113.0>) entfernt gestartet
+DLQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] in DLQ eingefügt.
+multicastNB: "beige" with VT: {1,[1]} by: <10540.118.0>
+HBQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] in HBQ eingefügt.
+HBQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] in HBQ eingefügt.
+send to <10540.118.0>
+send to <10541.118.0>
+send to <10542.118.0>
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[0,0]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[0,0,0]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] in DLQ eingefügt.
+DLQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] in DLQ eingefügt.
+HBQ>>> Vergleich {3,[0,0,0]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+HBQ>>> Vergleich {2,[0,0]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+multicastNB: "gruen" with VT: {3,[0,0,1]} by: <10542.118.0>
+DLQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] in DLQ eingefügt.
+HBQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] in HBQ eingefügt.
+HBQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] in HBQ eingefügt.
+send to <10540.118.0>
+send to <10541.118.0>
+send to <10542.118.0>
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[0,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[0,0]}).
+DLQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] in DLQ eingefügt.
+DLQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] in DLQ eingefügt.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Vergleich {2,[0,0]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Vergleich {1,[1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+multicastNB: "lila" with VT: {1,[2]} by: <10540.118.0>
+DLQ>>> Nachricht "lila" von Prozess 1 mit Zeitstempel [2] in DLQ eingefügt.
+HBQ>>> Nachricht "lila" von Prozess 1 mit Zeitstempel [2] in HBQ eingefügt.
+HBQ>>> Nachricht "lila" von Prozess 1 mit Zeitstempel [2] in HBQ eingefügt.
+send to <10540.118.0>
+send to <10541.118.0>
+send to <10542.118.0>
+Nachrichten 1: beige, 2: gruen, 3: lila an Multicast gesendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[0,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[0,0]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[2]}).
+HBQ>>> Vergleich {2,[0,0]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {3,[0,0,1]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"lila",{1,[2]}}
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[2]}).
+Send "lila" to 1
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"gruen",{3,[0,0,1]}}
+HBQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] in HBQ eingefügt.
+Send "gruen" to 2
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[0,0]}).
+HBQ>>> Vergleich {2,[0,0]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+DLQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] in DLQ eingefügt.
+HBQ>>> Vergleich {2,[0,0]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"beige",{1,[1]}}
+HBQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] in HBQ eingefügt.
+Send "beige" to 3
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[0,0,1]}).
+DLQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] in DLQ eingefügt.
+HBQ>>> Vergleich {3,[0,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"gruen",{3,[0,0,1]}}
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[0,0,1]}).
+Send "gruen" to 3
+HBQ>>> Vergleich {3,[0,0,1]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"lila",{1,[2]}}
+Send "lila" to 3
+HBQ>>> Nachricht "lila" von Prozess 1 mit Zeitstempel [2] in HBQ eingefügt.
+Nachrichten per Multicast zugestellt: A lila; B gruen; C beige,gruen,lila.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[0,0,1]}).
+HBQ>>> Vergleich {3,[0,0,1]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[2]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[0,0]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[0,0,1]}).
+        >>>Empfange Nachrichten: A "beige" (beige); B "beige" (gruen); C "beige" (gruen);
+HBQ>>> Vergleich {2,[0,0]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Vergleich {3,[0,0,1]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[2]}).
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[0,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[0,0]}).
+DLQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] aus DLQ gelöscht (blockierend).
+HBQ>>> Vergleich {3,[0,0,1]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {2,[0,0]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] aus DLQ gelöscht (blockierend).
+DLQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] aus DLQ gelöscht (blockierend).
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"beige",{1,[1]}}
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[2]}).
+Send "beige" to 1
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"lila",{1,[2]}}
+HBQ>>> Nachricht "lila" von Prozess 1 mit Zeitstempel [2] in HBQ eingefügt.
+Send "lila" to 2
+Nachrichten per Multicast zugestellt: A beige; B lila.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[1,0]}).
+DLQ>>> Nachricht "lila" von Prozess 1 mit Zeitstempel [2] in DLQ eingefügt.
+HBQ>>> Vergleich {2,[1,0]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[2]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[1,0]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[1,0,1]}).
+        >>>Empfange Nachrichten: A "gruen" (lila); B "gruen" (null); C "gruen" (beige);
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Nachricht "lila" von Prozess 1 mit Zeitstempel [2] in DLQ eingefügt.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Vergleich {3,[1,0,1]} mit {1,[2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+DLQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] aus DLQ gelöscht (nicht blockierend).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[2]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[1,0,1]}).
+DLQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] aus DLQ gelöscht (blockierend).
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] aus DLQ gelöscht (blockierend).
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"gruen",{3,[0,0,1]}}
+Send "gruen" to 1
+HBQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] in HBQ eingefügt.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[2,0,1]}).
+HBQ>>> Vergleich {1,[2,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"beige",{1,[1]}}
+HBQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] in HBQ eingefügt.
+Send "beige" to 2
+Nachrichten per Multicast zugestellt: A gruen; B beige.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[1,0,1]}).
+HBQ>>> Vergleich {2,[1,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[2,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[1,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[1,0,1]}).
+        >>>Empfange Nachrichten: A "lila" (gruen); B "gruen" (beige)|"lila" (lila); C "beige" (lila);
+HBQ>>> Vergleich {2,[1,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {1,[2,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[1,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[2,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[1,0,1]}).
+HBQ>>> Vergleich {1,[2,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {2,[1,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Nachricht "lila" von Prozess 1 mit Zeitstempel [2] aus DLQ gelöscht (blockierend).
+DLQ>>> Nachricht "gruen" von Prozess 3 mit Zeitstempel [0,0,1] aus DLQ gelöscht (blockierend).
+DLQ>>> Nachricht "beige" von Prozess 1 mit Zeitstempel [1] aus DLQ gelöscht (blockierend).
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[1,0,1]}).
+DLQ>>> Anfrage nach nicht leer erhalten: false
+HBQ>>> Vergleich {2,[1,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[1,0,1]}).
+HBQ>>> Vergleich {2,[1,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Nachricht "lila" von Prozess 1 mit Zeitstempel [2] aus DLQ gelöscht (blockierend).
+DLQ>>> Anfrage nach nicht leer erhalten: false
+Test für lokal Kausal und Nebenläufig beendet.
+
+DLQ>>> Nachricht "beigeK1" von Prozess 1 mit Zeitstempel [3,0,1] in DLQ eingefügt.
+HBQ>>> Nachricht "beigeK1" von Prozess 1 mit Zeitstempel [3,0,1] in HBQ eingefügt.
+HBQ>>> Nachricht "beigeK1" von Prozess 1 mit Zeitstempel [3,0,1] in HBQ eingefügt.
+multicastNB: "beigeK1" with VT: {1,[3,0,1]} by: <10540.118.0>
+Nachrichte 4: beigeK1 an Multicast gesendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[1,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[3,0,1]}).
+HBQ>>> Vergleich {3,[1,0,1]} mit {1,[3,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {1,[3,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {2,[2,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+send to <10540.118.0>
+send to <10541.118.0>
+send to <10542.118.0>
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: false
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"beigeK1",{1,[3,0,1]}}
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[3,0,1]}).
+Send "beigeK1" to 1
+HBQ>>> Vergleich {1,[3,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"beigeK1",{1,[3,0,1]}}
+HBQ>>> Nachricht "beigeK1" von Prozess 1 mit Zeitstempel [3,0,1] in HBQ eingefügt.
+Send "beigeK1" to 3
+Nachrichten per Multicast zugestellt: A beigeK1; C beigeK1.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[1,0,1]}).
+HBQ>>> Vergleich {3,[1,0,1]} mit {1,[3,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[3,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[1,0,1]}).
+        >>>Empfange Nachrichten: A "beigeK1" (beigeK1); B null (null); C "lila" (beigeK1);
+HBQ>>> Vergleich {1,[3,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {2,[2,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {3,[1,0,1]} mit {1,[3,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+multicastNB: "gruenK1" with VT: {3,[2,0,2]} by: <10542.118.0>
+send to <10540.118.0>
+send to <10541.118.0>
+send to <10542.118.0>
+Nachrichten 5: gruenK1 an Multicast gesendet.
+multicastNB: "lilaK1" with VT: {1,[4,0,1]} by: <10540.118.0>
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+Nachrichten 6: lilaK1 an Multicast gesendet.
+send to <10540.118.0>
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+send to <10541.118.0>
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+send to <10542.118.0>
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> null Nachricht aus DLQ gelesen (nicht blockierend).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[3,0,1]}).
+DLQ>>> Anfrage nach nicht leer erhalten: false
+HBQ>>> Vergleich {1,[3,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[1,0,1]}).
+HBQ>>> Nachricht "gruenK1" von Prozess 3 mit Zeitstempel [2,0,2] in HBQ eingefügt.
+HBQ>>> Vergleich {3,[1,0,1]} mit {1,[3,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Nachricht "beigeK1" von Prozess 1 mit Zeitstempel [3,0,1] aus DLQ gelöscht (blockierend).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Vergleich {2,[2,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+DLQ>>> Nachricht "lila" von Prozess 1 mit Zeitstempel [2] aus DLQ gelöscht (blockierend).
+DLQ>>> Anfrage nach nicht leer erhalten: false
+DLQ>>> Nachricht "gruenK1" von Prozess 3 mit Zeitstempel [2,0,2] in DLQ eingefügt.
+HBQ>>> Nachricht "gruenK1" von Prozess 3 mit Zeitstempel [2,0,2] in HBQ eingefügt.
+DLQ>>> Anfrage nach nicht leer erhalten: false
+DLQ>>> Nachricht "gruenK1" von Prozess 3 mit Zeitstempel [2,0,2] in DLQ eingefügt.
+HBQ>>> Vergleich {2,[2,0,1]} mit {3,[2,0,2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[3,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[2,0,2]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Nachricht "beigeK1" von Prozess 1 mit Zeitstempel [3,0,1] in DLQ eingefügt.
+HBQ>>> Vergleich {1,[3,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Vergleich {3,[2,0,2]} mit {1,[3,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+HBQ>>> Nachricht "lilaK1" von Prozess 1 mit Zeitstempel [4,0,1] in HBQ eingefügt.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,1]}).
+DLQ>>> Anfrage nach nicht leer erhalten: false
+HBQ>>> Vergleich {2,[2,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Nachricht "lilaK1" von Prozess 1 mit Zeitstempel [4,0,1] in HBQ eingefügt.
+DLQ>>> Nachricht "lilaK1" von Prozess 1 mit Zeitstempel [4,0,1] in DLQ eingefügt.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[4,0,1]}).
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[2,0,2]}).
+HBQ>>> Vergleich {3,[2,0,2]} mit {1,[4,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {1,[4,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"lilaK1",{1,[4,0,1]}}
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[4,0,1]}).
+Send "lilaK1" to 1
+HBQ>>> Vergleich {1,[4,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"lilaK1",{1,[4,0,1]}}
+Send "lilaK1" to 2
+HBQ>>> Nachricht "lilaK1" von Prozess 1 mit Zeitstempel [4,0,1] in HBQ eingefügt.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,1]}).
+HBQ>>> Vergleich {2,[2,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"lilaK1",{1,[4,0,1]}}
+HBQ>>> Nachricht "lilaK1" von Prozess 1 mit Zeitstempel [4,0,1] in HBQ eingefügt.
+Send "lilaK1" to 3
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[2,0,2]}).
+HBQ>>> Vergleich {3,[2,0,2]} mit {1,[4,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+Nachrichten per Multicast zugestellt: A lilaK1; B lilaK1; C lilaK1.
+{"gruenK1",{3,[2,0,2]}}
+Send "gruenK1" to 1
+HBQ>>> Nachricht "gruenK1" von Prozess 3 mit Zeitstempel [2,0,2] in HBQ eingefügt.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[4,0,1]}).
+HBQ>>> Vergleich {1,[4,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"gruenK1",{3,[2,0,2]}}
+Send "gruenK1" to 2
+HBQ>>> Nachricht "gruenK1" von Prozess 3 mit Zeitstempel [2,0,2] in HBQ eingefügt.
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,1]}).
+HBQ>>> Vergleich {2,[2,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+DLQ>>> Nachricht "gruenK1" von Prozess 3 mit Zeitstempel [2,0,2] in DLQ eingefügt.
+HBQ>>> Vergleich {2,[2,0,1]} mit {3,[2,0,2]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -1. Nachricht wird in DLQ verschoben
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"beigeK1",{1,[3,0,1]}}
+HBQ>>> Nachricht "beigeK1" von Prozess 1 mit Zeitstempel [3,0,1] in HBQ eingefügt.
+Send "beigeK1" to 2
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,1]}).
+HBQ>>> Vergleich {2,[2,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+{"gruenK1",{3,[2,0,2]}}
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[2,0,2]}).
+Send "gruenK1" to 3
+Nachrichten per Multicast zugestellt: A gruenK1; B gruenK1,beigeK1; C gruenK1.
+HBQ>>> Vergleich {3,[2,0,2]} mit {1,[4,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[4,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[2,0,2]}).
+        >>>Empfange Nachrichten: A "lilaK1" (gruenK1); B "gruenK1" (beigeK1)|"gruenK1" (lilaK1); C "gruenK1" (gruenK1);
+HBQ>>> Vergleich {1,[4,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {2,[2,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {3,[2,0,2]} mit {1,[4,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[4,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({3,[2,0,2]}).
+HBQ>>> Vergleich {1,[4,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {2,[2,0,1]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+HBQ>>> Vergleich {3,[2,0,2]} mit {1,[4,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz -2. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Nachricht "gruenK1" von Prozess 3 mit Zeitstempel [2,0,2] aus DLQ gelöscht (blockierend).
+DLQ>>> Nachricht "gruenK1" von Prozess 3 mit Zeitstempel [2,0,2] aus DLQ gelöscht (blockierend).
+DLQ>>> Nachricht "lilaK1" von Prozess 1 mit Zeitstempel [4,0,1] aus DLQ gelöscht (blockierend).
+DLQ>>> Anfrage nach nicht leer erhalten: true
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,2]}).
+DLQ>>> Anfrage nach nicht leer erhalten: false
+HBQ>>> Vergleich {2,[2,0,2]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({1,[4,0,1]}).
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+HBQ>>> Vergleich {1,[4,0,1]} mit {3,[0,0,1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 0. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Anfrage nach nicht leer erhalten: true
+HBQ>>> Prüfung auf auslieferbare Nachrichten ({2,[2,0,2]}).
+DLQ>>> Anfrage nach nicht leer erhalten: false
+HBQ>>> Vergleich {2,[2,0,2]} mit {1,[1]}.
+HBQ>>> Ergebnis aftereqVTJ mit Distanz 1. Nachricht bleibt in HBQ
+HBQ>>> Prüfung auf auslieferbare Nachrichten beendet.
+DLQ>>> Nachricht "gruenK1" von Prozess 3 mit Zeitstempel [2,0,2] aus DLQ gelöscht (blockierend).
+DLQ>>> Anfrage nach nicht leer erhalten: false

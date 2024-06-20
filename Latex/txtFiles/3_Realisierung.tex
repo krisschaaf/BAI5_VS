@@ -4,7 +4,7 @@
 \subsection{Vektoruhr-ADT}
 
 Die Vektoruhr (\textit{vectorC}) wird in dieser Ausarbeitung als ein abstrakter Datentyp implementiert. Jeder Prozess hat seine eigene Vektoruhr \textit{VT}. Um eine Identität und einen initialen Zeitstempel zu erhalten, muss sich jede Vektoruhr beim Tower (Kap. \ref{tower}) melden.
-Wie in \ref{commModule} bereits beschrieben und in Abb. \ref{fig:sequence_cbCast} zu sehen, wird beim Aufruf der \textit{init()} Funktion des \textit{vectorC} ein Verbindungstest zur \textit{towerClock} gestartet. Dieser terminiert das Programm, wenn keine Verbindung hergestellt werden kann.
+Wie in \ref{commModule} bereits beschrieben und in Abb. \ref{fig:sequence_cbCast_init} zu sehen, wird beim Aufruf der \textit{init()} Funktion des \textit{vectorC} ein Verbindungstest zur \textit{towerClock} gestartet. Dieser terminiert das Programm, wenn keine Verbindung hergestellt werden kann.
 \\Die allgemeine ADT der Vektoruhr ist ein Tupel aus dessen Vektoruhr ID als Integer und der Vektoruhr als Liste. Ein Beispiel ist \textit{{2, [1,3,4,2]}}. Die Vektoruhr ID ist \textit{2} und die Vektoruhr ist \textit{[1,3,4,2]}. Da die Vektoruhr IDs bei 0 starten, wäre jetzt der eigene Zeitstempel dieser ADT \textit{4}.
 
 \begin{lstlisting}

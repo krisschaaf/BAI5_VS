@@ -1,6 +1,6 @@
 -module(cbCast).
 
--export([init/0, stop/1, send/2, received/1, read/1, pushHBQ/2, pushDLQ/2, checkQueues/4, listQueues/1, popDLQ/1]).
+-export([init/0, stop/1, send/2, received/1, read/1, pushHBQ/2, pushDLQ/2, checkQueues/3, listQueues/1, popDLQ/1]).
 
 % init(): erstellt einen Prozess für die Kommunikationseinheit. Rückgabe ist ihre PID.
 init() ->
@@ -93,25 +93,16 @@ loop(Datei, TowerCBC, Queues) ->
 	receive
         % {<PID>,{castMessage,{<Message>,<VT>}}}: als Nachricht. Empfängt die Nachricht <Message> mit Vektorzeitstempel <VT>. <PID> wird nicht benötigt.
         {_From, {castMessage, {Message, NewVT}}} ->
-            Queues ! {self(), {getVTid}},
+            util:logging(Datei, "Message: "++util:to_String(Message)++" with Timestamp: "++util:to_String(NewVT)++" casted.\n"),
+            Queues ! {self(), {pushHBQ, {Message, NewVT}}},
             receive
-                {ok_getVTid, VTid} -> 
-                    case VTid == vectorC:myVTid(NewVT) of
-                        false -> 
-                            util:logging(Datei, "Message: "++util:to_String(Message)++" with Timestamp: "++util:to_String(NewVT)++" received.\n"),
-                            Queues ! {self(), {pushHBQ, {Message, NewVT}}},
-                            receive
-                                {ok_pushHBQ} -> 
-                                    Queues ! {self(), {checkQueues}},
-                                    receive
-                                        {ok_checkQueues} -> ok
-                                        after 1000 -> util:logging(Datei, "Timeout: Could not check Queues\n")
-                                    end
-                            end;
-                        true -> 
-                            util:logging(Datei, "Message: "++util:to_String(Message)++" with Timestamp: "++util:to_String(NewVT)++" discarded.\n")
-                    end
+                {ok_pushHBQ} -> ok
                 after 1000 -> util:logging(Datei, "Timeout: Could not push Message to HBQ\n")
+            end,
+            Queues ! {self(), {checkQueues}},
+            receive
+                {ok_checkQueues} -> ok
+                after 1000 -> util:logging(Datei, "Timeout: Could not check Queues\n")
             end,
             loop(Datei, TowerCBC, Queues);
         
@@ -125,15 +116,9 @@ loop(Datei, TowerCBC, Queues) ->
                             From ! {ok_getMessage, {Blocking, Message}},
                             Queues ! {self(), {syncVT, {MsgVT}}},
                             receive
-                                {ok_syncVT} -> 
-                                    Queues ! {self(), {checkQueues}},
-                                    receive
-                                        {ok_checkQueues} -> ok
-                                        after 1000 -> util:logging(Datei, "Timeout: Could not check Queues\n")
-                                    end
+                                {ok_syncVT, _} -> loop(Datei, TowerCBC, Queues)
                                 after 1000 -> util:logging(Datei, "Timeout: Could not sync VT\n")
-                                end,
-                            loop(Datei, TowerCBC, Queues);
+                            end;
                         {} -> 
                             case Blocking of
                                 true -> 
@@ -170,21 +155,14 @@ loop(Datei, TowerCBC, Queues) ->
                 {ok_tickVT, NewVT} -> 
                     TowerCBC ! {self(), {multicastNB, {Message, NewVT}}},
                     util:logging(Datei, "Message "++util:to_String(Message)++" with VT "++util:to_String(NewVT)++" sent from "++util:to_String(Comm)++"\n"),
-                    
-                    Queues ! {self(), {pushDLQ, {Message, NewVT}}},
+                    Queues ! {self(), {pushDLQ, {Message, NewVT}}}, % TODO: remove!
                     receive
-                        {ok_pushDLQ} -> 
-                            Queues ! {self(), {checkQueues}},
-                            receive
-                                {ok_checkQueues} -> ok
-                                after 1000 -> util:logging(Datei, "Timeout: Could not check Queues\n")
-                            end
-                    end
-
+                        {ok_pushDLQ} -> From ! {ok_send}
+                        after 1000 -> util:logging(Datei, "Timeout: Could not push Message to DLQ\n")
+                    end,
+                    loop(Datei, TowerCBC, Queues)
                 after 1000 -> util:logging(Datei, "Timeout: Could not tick VT\n")
-            end,
-            From ! {ok_send},
-            loop(Datei, TowerCBC, Queues);
+            end;
         
         {From, {stop}} when is_pid(From)->
             From ! {ok_stop};
@@ -227,15 +205,15 @@ loopQueues(Datei, VT, HBQ, DLQ) ->
             end;
 
         {From, {checkQueues}} when is_pid(From) ->
-            {NewHBQ, NewDLQ} = checkQueues(Datei, HBQ, DLQ, VT),
+            {NewHBQ, NewDLQ} = checkQueues(Datei, HBQ, DLQ),
             From ! {ok_checkQueues},
             util:logging(Datei, "Queues checked.\n"),
             loopQueues(Datei, VT, NewHBQ, NewDLQ);
 
         {From, {syncVT, {AsyncVT}}} when is_pid(From) ->
             NewVT = vectorC:syncVT(VT, AsyncVT),
-            From ! {ok_syncVT},
-            util:logging(Datei, "Comm VT "++util:to_String(VT)++" synchronized with "++util:to_String(AsyncVT)++" is now "++util:to_String(NewVT)++".\n"),
+            From ! {ok_syncVT, NewVT},
+            util:logging(Datei, "Comm VT "++util:to_String(VT)++" synchronized with "++util:to_String(AsyncVT)++"\n"),
             loopQueues(Datei, NewVT, HBQ, DLQ);
 
         {From, {tickVT}} -> 
@@ -243,11 +221,6 @@ loopQueues(Datei, VT, HBQ, DLQ) ->
             From ! {ok_tickVT, NewVT},
             util:logging(Datei, "VT "++util:to_String(VT)++" ticked to "++util:to_String(NewVT)++"\n"),
             loopQueues(Datei, NewVT, HBQ, DLQ);
-
-        {From, {getVTid}} when is_pid(From) ->
-            VTid = vectorC:myVTid(VT),
-            From ! {ok_getVTid, VTid},
-            loopQueues(Datei, VT, HBQ, DLQ);
 
         {From, {listQueues}} when is_pid(From) ->
             util:logging(Datei, "HBQ: "++util:to_String(HBQ)++"\nDLQ: "++util:to_String(DLQ)++"\n"),
@@ -259,10 +232,34 @@ loopQueues(Datei, VT, HBQ, DLQ) ->
             loopQueues(Datei, VT, HBQ, DLQ)
     end.
 
-% returns new DLQ
-% new msg are added to the head of the list
-pushHBQ(Message, HBQ) -> 
-    [Message|HBQ].
+% returns new HBQ
+% new msg are added to the list in the right position, starting at the head (head is largest VT)
+pushHBQ(Message, []) -> 
+    Datei = "logs/"++util:to_String(erlang:node())++".log",
+    util:logging(Datei, "empty "++util:to_String(Message)++"\n"),%TODO: remove
+    [Message];
+pushHBQ(Message, [Head|Tail]) ->
+    {_, VT1} = Message,
+    {_, VT2} = Head,
+    Position = vectorC:compVT(VT1, VT2),
+    case Position of
+        afterVT -> 
+            Datei = "logs/"++util:to_String(erlang:node())++".log",
+            util:logging(Datei, "after "++util:to_String([Message|[Head|Tail]]++"\n")),%TODO: remove
+            [Message|[Head|Tail]]; %TODO: Listenaufbau debuggen
+        beforeVT -> 
+            Datei = "logs/"++util:to_String(erlang:node())++".log",
+            util:logging(Datei, "before "++util:to_String([Head|pushHBQ(Message, Tail)])++"\n"),%TODO: remove
+            [Head|pushHBQ(Message, Tail)];
+        equalVT -> 
+            Datei = "logs/"++util:to_String(erlang:node())++".log",
+            util:logging(Datei, "equal "++util:to_String([Head|Tail])++"\n"),%TODO: remove
+            [Head|Tail]; %TODO: testen
+        concurrentVT -> 
+            Datei = "logs/"++util:to_String(erlang:node())++".log",
+            util:logging(Datei, "concurrent "++util:to_String([Message|[Head | Tail]])++"\n"),%TODO: remove
+            [Message|[Head|Tail]]
+    end.
 
 % returns new DLQ
 % new msg are added to the head of the list
@@ -273,44 +270,34 @@ pushDLQ(Message, DLQ) ->
 popDLQ(DLQ) -> getLastElement(DLQ).
 
 % returns 
-checkQueues(Datei, HBQ, DLQ, VT) -> checkQueues(Datei, HBQ, HBQ, DLQ, VT).
-
-checkQueues(Datei, _, [], DLQ, VT) ->
-    util:logging(Datei, "Queues>>> Queues checked with VT "++util:to_String(VT)++" (HBQ empty).\n"), 
-    util:logging(Datei, "DLQ>>> Current Size "++util:to_String(length(DLQ))++".\n"), 
+checkQueues(Datei, [], []) -> 
+    util:logging(Datei, "HBQ>>> HBQ is empty.\n"),
+    {[],[]};
+checkQueues(Datei, [], DLQ) ->
+    util:logging(Datei, "HBQ>>> HBQ is empty.\n"), 
     {[],DLQ};
-checkQueues(Datei, [], HBQ, DLQ, VT) ->
-    util:logging(Datei, "Queues>>> Queues checked with VT "++util:to_String(VT)++".\n"),
-    util:logging(Datei, "HBQ>>> Current Size "++util:to_String(length(HBQ))++".\n"), 
-    util:logging(Datei, "DLQ>>> Current Size "++util:to_String(length(DLQ))++".\n"), 
-    {HBQ, DLQ};
-checkQueues(Datei, [HBQHead|HBQTail], HBQ, DLQ, VT) ->
-    VTvcHBQ = vectorC:myVTvc(HBQHead),
-    case vectorC:aftereqVTJ(VT, VTvcHBQ) of
+checkQueues(Datei, HBQ, []) -> 
+    {HBQLastElement, NewHBQ} = getLastElement(HBQ),
+    NewDLQ = pushDLQ(HBQLastElement, []),
+    util:logging(Datei, "HBQ>>> removed "++util:to_String(HBQLastElement)++" from HBQ and added to DLQ (DLQ empty).\n"),
+    checkQueues(Datei, NewHBQ, NewDLQ);
+checkQueues(Datei, HBQ, DLQ) ->
+    {HBQLastElement, NewHBQ} = getLastElement(HBQ),
+    {_, VTHBQ} = HBQLastElement,
+     [{_, VTDLQ}|_] = DLQ,
+    case vectorC:aftereqVTJ(VTDLQ, VTHBQ) of
         {aftereqVTJ, -1} -> 
-            NewDLQ = pushDLQ(HBQHead, DLQ),
-            NewHBQ = removeFromList(HBQ, HBQHead),
-            util:logging(Datei, "Queues>>> removed "++util:to_String(HBQHead)++" from HBQ and added to DLQ (aftereqVTJ, -1).\n"),
-            checkQueues(Datei, HBQTail, NewHBQ, NewDLQ, VT);
-        {aftereqVTJ, 0} -> %TODO: check if this is correct
-            NewDLQ = pushDLQ(HBQHead, DLQ),
-            NewHBQ = removeFromList(HBQ, HBQHead),
-            util:logging(Datei, "Queues>>> removed "++util:to_String(HBQHead)++" from HBQ and added to DLQ (aftereqVTJ, 0).\n"),
-            checkQueues(Datei, HBQTail, NewHBQ, NewDLQ, VT);
+            NewDLQ = pushDLQ(HBQLastElement, DLQ),
+            util:logging(Datei, "HBQ>>> removed "++util:to_String(HBQLastElement)++" from HBQ and added to DLQ (aftereqVTJ).\n"),
+            checkQueues(Datei, NewHBQ, NewDLQ);
+        %TODO: aftereqVTJ, 0 -> ist das equalVT und kann verworfen werden?
         {aftereqVTJ, _} -> 
-            checkQueues(Datei, HBQTail, HBQ, DLQ, VT);
+            util:logging(Datei, "HBQ>>> up to date.\n"),
+            {HBQ, DLQ};
         false -> 
-            checkQueues(Datei, HBQTail, HBQ, DLQ, VT)
+            util:logging(Datei, "HBQ>>> up to date.\n"),
+            {HBQ, DLQ}
     end.
-
-removeFromList(List, Element) -> 
-    removeFromList(List, Element, []).
-
-removeFromList([], _Element, NewList) -> NewList;
-removeFromList([Head|Tail], Element, NewList) when Head == Element -> 
-    removeFromList(Tail, Element, NewList);
-removeFromList([Head|Tail], Element, NewList) ->
-    removeFromList(Tail, Element, NewList++[Head]).
 
 % returns last Element and new List without last Element
 getLastElement([]) -> {[], []};
