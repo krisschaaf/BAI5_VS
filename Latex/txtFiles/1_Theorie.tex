@@ -20,10 +20,12 @@ Die Zeiger in den Vektoruhren sind in vielen Implementierungen Zeitstempel der z
 Die \textit{\textit{Kommunikationseinheit}} ermöglicht es Prozessen, welche über einen \textit{Tower} mit anderen Prozessen kommunizieren, Nachrichten zu schicken und zu empfangen. Das Interface stellt hierbei verschiedene Funktionen zum blockierenden und nicht blockierenden Senden von Nachrichten. Jeder Prozess, welcher als \textit{Kommunikationseinheit} gestartet wird, empfängt bei korrekter Implementierung automatisch Nachrichten.\\
 Desweiteren hat jede \textit{Kommunikationseinheit} eine eigene Vektoruhr. Wird eine Nachricht von der \textit{Kommunikationseinheit} gesendet, wird diese Vektoruhr um 1 erhöht.
 
-\subsubsection{Holdback Queue}
+\paragraph{Auslieferbarkeit von Nachrichten} wird beim Empfangen einer Nachricht im jeweiligen \textit{Kommunikationsprozess} geprüft. Ob eine Nachricht auslieferbar ist, wird durch zwei Bedingungen geprüft. Die notwendige Bedingung ist, dass die Vektoruhr der Nachricht logisch vor oder gleich der Vektoruhr des Prozesses ist. Die hinreichende Bedingung ist, dass die Distanz zwischen den beiden -1 ist, an der Stelle die den Zustand der Vektoruhr der Nachricht zeigt.
 
-Beim Empfangen einer Nachricht, wird diese zuerst in eine \textit{Holdbackqueue} sortiert. Die \textit{Holdbackqueue} ist eine \textit{Priorityqueue} und enthält alle Nachrichten, die nicht ausgeliefert werden dürfen. Sortiert wird anhand der, der Nachricht angehängten, Vektoruhr.\\
-Hierbei gibt es vier verschiedene Positionen die Vektoruhren zueinander haben können:
+\subsubsection{Holdback Queue} \label{hbq_theory}
+
+Ist eine Nachricht nicht auslieferbar wird diese zuerst in eine \textit{Holdback Queue} sortiert. Für die Sortierung gibt es zwei verschiedene Möglichkeiten. Zum einen können neu empfangene Nachrichten direkt an den Anfang der Queue sortiert werden. Die zweite Möglichkeit ist, die \textit{Holdback Queue} als \textit{Priority Queue} umzusetzen. Sortiert wird hierbei anhand der, der Nachricht angehängten, Vektoruhr.\\
+Es vier verschiedene Positionen die Vektoruhren zueinander haben können:
 \begin{itemize} \label{positionVTs}
   \item X before Y: Wenn X mindestens an einer Stelle höher und an allen anderen Stellen höher oder gleich Y ist.
   \item X after Y: Wenn X mindestens an einer Stelle kleiner und an allen anderen Stellen kleiner oder gleich Y ist.
@@ -31,13 +33,21 @@ Hierbei gibt es vier verschiedene Positionen die Vektoruhren zueinander haben k�
   \item X concurrent Y: Wenn X an mindestens einer Stelle höher und an mindestens einer Stelle kleiner als Y ist.
 \end{itemize}
 
-Ob Nachrichten auslieferbar sind und die Queue verlassen dürfen oder ob Nachrichten aus der Queue gelöscht werden müssen, wird geprüft, wenn neue Nachrichten der Queue hinzugefügt werden. Auslieferbar ist eine Nachricht, wenn diese nach oder gleich der, der \textit{Delivery Queue} zuletzt hinzugefügten Nachricht, liegt und eine Distanz von -1 hat.\\
-Falls es zu einem Stillstand im System kommt läuft zusätzlich ein Intervall-Timer, welcher die Auslieferbarkeitsprüfung regelmäßig aufruft.
+Vorteilhaft dabei, die \textit{Holdback Queue} nicht als \textit{Priority Queue} umzusetzen ist, dass die Sortierung von \textit{concurrent} Vektoruhren nicht beachtet werden muss. Außerdem ist die Implementierung schneller umzusetzen.\\
+In der Effizienz beider Möglichkeiten ist kein wesentlicher Unterschied zu erkennen. Die \textit{Priority Queue} kann abhängig vom gewählten Sortieralgorithmus (siehe Abb. \ref{fig:sortAlgo}) eine minimale Komplexität von $O(n)$ erreichen. Dies wäre mit dem Heap Sort Algorithmus möglich - $O(n*log(n))$ bezieht sich hierbei auf eine nicht vorsortierte Liste. Nachrichten, welche auf Auslieferbarkeit geprüft werden müssen, würden nun am Ende der Queue stehen.\\
+Wenn Nachrichten direkt an den Anfang der Queue einsortiert werden ensteht dadurch eine Komplexität von $O(1)$. Allerdings wird bei der Prüfung auf Auslieferbarkeit nun über die gesamte Queue iteriert, was eine zusätzliche Komplexität von $O(n)$ zur Folge hat. Beide Möglichkeiten haben also eine Komplexität von $O(n)$.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[scale=0.59]{Latex/Bilder/sortAlgo.png}
+\caption{\label{fig:sortAlgo} Auswertung Sortieralgorithmen \cite{sortAlgo}} 
+\end{center}
+\end{figure}
 
 \subsubsection{Delivery Queue}
 
 Die \textit{Delivery Queue} ist die zweite Queue eines \textit{Kommunikationsprozesses}. Sie enthält alle auslieferbaren Nachrichten.
-Wird eine Nachricht ausgeliefert, wird die Vektoruhr der ausgelieferten Nachricht mit der der \textit{Delivery Queue} synchronisiert.
+Wird eine Nachricht ausgeliefert, wird die Vektoruhr der ausgelieferten Nachricht mit der des \textit{Kommunikationsprozesses} synchronisiert.
 
 \subsection{Ungeordneter Multicast}
 

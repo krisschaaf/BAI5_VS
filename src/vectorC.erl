@@ -36,7 +36,8 @@ myVTvc({_VTID, VT}) -> VT.
 myCount({VTID, VT}) -> getElementByIndex(VT, VTID).
 
 % foCount(J,VT): gibt den Zeitstempel der Position J als ganze Zahl zurück bzw. den zugehörigen Ereigniszähler.
-foCount(J, {_VTID, VT}) -> getElementByIndex(VT, J).
+foCount(J, {_VTID, VT}) when J > 0 -> getElementByIndex(VT, J);
+foCount(_, _) -> throw({error, "Invalid index. Index must be greater than 0."}).
 
 % isVT(VT): prüft, ob VT ein Vektorzeitstempel ist. Rückgabe ist true oder false.
 isVT(VT) -> 

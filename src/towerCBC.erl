@@ -56,7 +56,7 @@ listall() ->
 % Dient im manuellen Zustand der manuellen Durchführuzng des Multicast. 
 % Rückgabewert ist bei Erfolg true, sonst false. 
 % Achtung: um den manuellen Modus nutzen zu können, muss die Kommunikationseinheit cbCast.erl mit multicastNB senden!
-cbcast(Receiver, MessageNumber) -> 
+cbcast(Receiver, MessageNumber) when is_integer(Receiver), is_integer(MessageNumber), Receiver > 0, MessageNumber > 0 -> 
     towerKLCcbc ! {self(), {multicastM, Receiver, MessageNumber}},
     receive
         {replycbc, ok_send} -> true;
@@ -104,7 +104,7 @@ loop(Datei, Registered, Auto, Buffer) ->
             util:logging(Datei, "MulticastM not allowed in auto mode\n"),
             From ! {replycbc, error_send},
             loop(Datei, Registered, Auto, Buffer);
-        {From, {multicastM, CommNR, MessageNR}} when is_pid(From) and not(Auto)-> 
+        {From, {multicastM, CommNR, MessageNR}} when is_pid(From), not(Auto), is_integer(CommNR), is_integer(MessageNR), CommNR>0, MessageNR>0-> 
             Comm = getElementByIndex(Registered, CommNR - 1), % Receiver Index beginnt bei 0
             Result = getElementByIndex(Buffer, MessageNR - 1), % Buffer Index beginnt bei 0
             util:logging(Datei, util:to_String(Result)++"\n"),
