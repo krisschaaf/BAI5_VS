@@ -18,13 +18,11 @@ stop(PID) ->
 
     PID ! {self(), {stop}},
     receive
-        {ok_stop} -> 
-            % unregister(vtKLCclockC), %TODO: get tower pid
+        {replyclock, ok_stop} -> 
             true
         after 5000 ->
             util:logging(Datei, "Timeout: TowerClock not stopped, killing now...\n"),
             exit(whereis(PID), ok)
-            % unregister(vtKLCclockC)
     end.
 
 loop(Datei, Map) ->
@@ -44,7 +42,7 @@ loop(Datei, Map) ->
                     loop(Datei, Map)
             end;
         {From, {stop}} when is_pid(From)->
-            From ! {ok_stop};
+            From ! {replyclock, ok_stop};
         Any -> 
             util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
             loop(Datei, Map)

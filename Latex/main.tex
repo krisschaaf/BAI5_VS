@@ -1,4 +1,6 @@
 \documentclass[a4paper,11pt]{article}
+\usepackage{array}
+\usepackage{booktabs}
 \usepackage[utf8]{inputenc}
 \usepackage{fontenc}
 \usepackage[ngerman]{babel}
@@ -40,10 +42,11 @@ tmargin={3cm},bmargin = {2cm}]{geometry}
 }
 
 \addbibresource{library.bib}
+\setcounter{tocdepth}{2}
 
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{Holdback und Delivery Queue}
+\rhead{Ausarbeitung eines kausalen Multicasts}
 \lhead{Kristoffer Schaaf}
 \rfoot{Page \thepage}
 
@@ -69,6 +72,7 @@ tmargin={3cm},bmargin = {2cm}
 % \begingroup
 % \let\clearpage\relax
 \setcounter{page}{1}
+
 
 \include{Latex/txtFiles/1_Theorie}
 \include{Latex/txtFiles/2_Entwurf}

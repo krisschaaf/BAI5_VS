@@ -1,6 +1,6 @@
 -module(vectorC).
 
--export([initVT/0, myVTid/1, myVTvc/1, myCount/1, foCount/2, isVT/1, syncVT/2, tickVT/1, compVT/2, aftereqVTJ/2, remove_at/2]).
+-export([initVT/0, myVTid/1, myVTvc/1, myCount/1, foCount/2, isVT/1, syncVT/2, tickVT/1, compVT/2, aftereqVTJ/2]).
 
 % initVT(): erstellt einen initialen Vektorzeitstempel. Dazu nimmt sie gemäß Spezifikation in towerClock.cfg Kontakt mit der Zentrale towerClock auf, um eine Identität zu erhalten. 
 % Rückgabe ist ein initialer Vektorzeitstempel. Dieser stellt die Vektoruhr dar. Achtung: die towerClock.cfg dient nur der ADT vectorC.erl. Der Tower selbst liest diese Datei nicht ein.
@@ -36,8 +36,8 @@ myVTvc({_VTID, VT}) -> VT.
 myCount({VTID, VT}) -> getElementByIndex(VT, VTID).
 
 % foCount(J,VT): gibt den Zeitstempel der Position J als ganze Zahl zurück bzw. den zugehörigen Ereigniszähler.
-foCount(J, {_VTID, VT}) when J > 0 -> getElementByIndex(VT, J);
-foCount(_, _) -> throw({error, "Invalid index. Index must be greater than 0."}).
+foCount(J, {_VTID, VT}) when J > 0 andalso J =< length(VT)-> getElementByIndex(VT, J);
+foCount(_, _) -> throw({error, "Invalid index. Index must be greater than 0 and smaller than the size of available timestamps."}).
 
 % isVT(VT): prüft, ob VT ein Vektorzeitstempel ist. Rückgabe ist true oder false.
 isVT(VT) -> 
@@ -155,17 +155,16 @@ compareLists([H1 | T1], [H2 | T2], CurrentResult) when H1 == H2 ->
 
 
 removeJ({VTID1, VT1}, {VTID2, VT2}) ->
-    MaxLength = max(length(VT1), length(VT2)),
-    NormalizedVT1 = padWithZeros(VT1, MaxLength),
-    NormalizedVT2 = padWithZeros(VT2, MaxLength),
+    NormalizedVT1 = padWithZeros(VT1, length(VT2)),
+    NormalizedVT2 = padWithZeros(VT2, length(VT1)),
 
-    {NewVT1, RemovedElement1} = remove_at(NormalizedVT1, VTID2),
-    {NewVT2, RemovedElement2} = remove_at(NormalizedVT2, VTID2),
+    {NewVT1, RemovedElement1} = removeAt(NormalizedVT1, VTID2),
+    {NewVT2, RemovedElement2} = removeAt(NormalizedVT2, VTID2),
 
     {{VTID1, NewVT1}, {VTID2, NewVT2}, {RemovedElement1, RemovedElement2}}.
     
 
-remove_at(List, Index) -> remove_at(List, Index, 1, []).
+removeAt(List, Index) -> remove_at(List, Index, 1, []).
 
 remove_at([H | T], Index, CurrentIndex, Acc) when CurrentIndex == Index ->
     {Acc ++ T, H};

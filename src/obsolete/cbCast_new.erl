@@ -16,7 +16,7 @@ init() ->
     end,
 
     CommCBC = spawn(fun() -> loop(Datei, {Servername, Servernode}) end),
-    register(cbCast,CommCBC),
+    % register(cbCast,CommCBC),
     
     {Servername, Servernode} ! {self(), {register, CommCBC}},
     receive
@@ -36,12 +36,10 @@ stop(Comm) ->
     Comm ! {self(), {stop}},
     receive
         {ok_stop} -> 
-            % unregister(cbCast), %TODO: get Comm pid
             done
         after 5000 ->
             util:logging(Datei, "Timeout: CbCast not stopped, killing now...\n"),
             exit(whereis(Comm), ok)
-            % unregister(cbCast)
     end.
 
 % send(Comm,Message): sendet eine Nachricht Message über die Kommunikationseinheit Comm als kausaler Multicast an alle anderen in der Gruppe.
@@ -63,14 +61,6 @@ received(Comm) ->
         {replycbcast, ok_getMessage, {true, Message}} -> Message
     end.
 
-listQueues(Comm) ->
-    Comm ! {self(), {listQueues}},
-    receive
-        {replycbcast, ok_listQueues} -> ok %TODO: replycbc überall anpassen
-    after 1000 -> false
-    end.
-
-
 % read(Comm): empfängt nicht blockierend eine Nachricht von der Kommunikationseinheit Comm. 
 % Wenn keine Nachricht vorhanden ist, wird null zurück gegeben, sonst eine Zeichenkette.
 read(Comm) -> 
@@ -82,17 +72,29 @@ read(Comm) ->
         after 1000 -> util:logging(Datei, "Timeout: Could not read Message\n")
     end.
 
+
+listQueues(Comm) ->
+    Comm ! {self(), {listQueues}},
+    receive
+        {replycbcast, ok_listQueues} -> ok
+    after 1000 -> false
+    end.
+
 % Die initialisierung der VT muss aus dem richtigten Prozess heraus gestartet werden.
 loop(Datei, TowerCBC) ->
     VT = vectorC:initVT(),
     Queues = spawn(fun() -> loopQueues(Datei, VT, [], []) end),
     loop(Datei, TowerCBC, Queues).
 
-
 loop(Datei, TowerCBC, Queues) ->
 	receive
         % {<PID>,{castMessage,{<Message>,<VT>}}}: als Nachricht. Empfängt die Nachricht <Message> mit Vektorzeitstempel <VT>. <PID> wird nicht benötigt.
         {_From, {castMessage, {Message, NewVT}}} ->
+            case vectorC:isVT(NewVT) of 
+                false ->
+                    util:logging(Datei, "Message: "++util:to_String(Message)++" with Timestamp: "++util:to_String(NewVT)++" discarded.\n"),
+                    loop(Datei, TowerCBC, Queues)
+            end,
             Queues ! {self(), {getVTid}},
             receive
                 {replyqueues, ok_getVTid, VTid} -> 
@@ -142,16 +144,21 @@ loop(Datei, TowerCBC, Queues) ->
                                         {NewFrom, {stop}} when is_pid(NewFrom)->
                                             NewFrom ! {replycbcast, ok_stop};
                                         {_From, {castMessage, {Message, NewVT}}} ->
-                                            util:logging(Datei, "Message: "++util:to_String(Message)++" with Timestamp: "++util:to_String(NewVT)++" received.\n"),
-                                            Queues ! {self(), {pushHBQ, {Message, NewVT}}},
-                                            receive
-                                                {replyqueues, ok_pushHBQ} -> self() ! {From, {getMessage, true}}  
-                                                after 1000 -> util:logging(Datei, "Timeout: Could not push Message to HBQ\n")
-                                            end,
-                                            Queues ! {self(), {checkQueues}},
-                                            receive
-                                                {replyqueues, ok_checkQueues} -> ok
-                                                after 1000 -> util:logging(Datei, "Timeout: Could not check Queues\n")
+                                            case vectorC:isVT(NewVT) of 
+                                                true ->
+                                                    util:logging(Datei, "Message: "++util:to_String(Message)++" with Timestamp: "++util:to_String(NewVT)++" received.\n"),
+                                                    Queues ! {self(), {pushHBQ, {Message, NewVT}}},
+                                                    receive
+                                                        {replyqueues, ok_pushHBQ} -> self() ! {From, {getMessage, true}}  
+                                                        after 1000 -> util:logging(Datei, "Timeout: Could not push Message to HBQ\n")
+                                                    end,
+                                                    Queues ! {self(), {checkQueues}},
+                                                    receive
+                                                        {replyqueues, ok_checkQueues} -> ok
+                                                        after 1000 -> util:logging(Datei, "Timeout: Could not check Queues\n")
+                                                    end;
+                                                false ->
+                                                    util:logging(Datei, "Message: "++util:to_String(Message)++" with Timestamp: "++util:to_String(NewVT)++" discarded.\n")
                                             end
                                     end;
                                 false -> 
@@ -223,8 +230,7 @@ loopQueues(Datei, VT, HBQ, DLQ) ->
                     From ! {replyqueues, ok_popDLQ, Message},
                     util:logging(Datei, "Message: "++util:to_String(Message)++" popped from DLQ.\n"),
                     loopQueues(Datei, VT, HBQ, NewDLQ);
-                _ -> 
-                    loopQueues(Datei, VT, HBQ, DLQ)
+                _ -> error
             end;
 
         {From, {checkQueues}} when is_pid(From) ->
@@ -292,6 +298,11 @@ checkQueues(Datei, [HBQHead|HBQTail], HBQ, DLQ, VT) ->
             NewDLQ = pushDLQ(HBQHead, DLQ),
             NewHBQ = removeFromList(HBQ, HBQHead),
             util:logging(Datei, "Queues>>> removed "++util:to_String(HBQHead)++" from HBQ and added to DLQ (aftereqVTJ, -1).\n"),
+            checkQueues(Datei, HBQTail, NewHBQ, NewDLQ, VT);
+        {aftereqVTJ, 0} -> %TODO: check if this is correct
+            NewDLQ = pushDLQ(HBQHead, DLQ),
+            NewHBQ = removeFromList(HBQ, HBQHead),
+            util:logging(Datei, "Queues>>> removed "++util:to_String(HBQHead)++" from HBQ and added to DLQ (aftereqVTJ, 0).\n"),
             checkQueues(Datei, HBQTail, NewHBQ, NewDLQ, VT);
         {aftereqVTJ, _} -> 
             checkQueues(Datei, HBQTail, HBQ, DLQ, VT);
