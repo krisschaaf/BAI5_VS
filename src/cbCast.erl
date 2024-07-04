@@ -16,7 +16,7 @@ init() ->
     end,
 
     CommCBC = spawn(fun() -> loop(Datei, {Servername, Servernode}) end),
-    % register(cbCast,CommCBC),
+    register(cbCast,CommCBC), % !important for testing application!
     
     {Servername, Servernode} ! {self(), {register, CommCBC}},
     receive

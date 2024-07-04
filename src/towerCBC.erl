@@ -1,6 +1,6 @@
 -module(towerCBC).
 
--export([init/1, stop/1, reset/1, listall/0, cbcast/2]).
+-export([init/1, stop/1, reset/1, listall/0, cbcast/2, shuffleMessages/1]).
 
 % init()|init(auto|manu): startet den Multicast im automatischen Modus (init()|init(auto)) oder dem manuellen Modus (init(manu)). 
 % Rückgabewert ist die PID des Multicast.
@@ -59,6 +59,14 @@ cbcast(Receiver, MessageNumber) when is_integer(Receiver), is_integer(MessageNum
     receive
         {replycbc, ok_send} -> true;
         {replycbc, error_send} -> false
+    after 1000 -> false
+    end.
+
+
+shuffleMessages(Tower) -> 
+    Tower ! {self(), {shuffleMessages}},
+    receive
+        {replycbc, ok_shuffleMessages, {OldBuffer, NewBuffer}} -> {OldBuffer, NewBuffer}
     after 1000 -> false
     end.
 
@@ -161,6 +169,13 @@ loop(Datei, Registered, Auto, Buffer) ->
         {From, {stop}} when is_pid(From)->
             unregister(towerKLCcbc),
             From ! {ok_stop};
+
+        % Interface needed for testing application
+        {From, {shuffleMessages}} ->
+            util:logging(Datei, "Shuffle messages...\n"),
+            NewBuffer = [X||{_,X} <- lists:sort([ {rand:uniform(), N} || N <- Buffer])], % https://stackoverflow.com/questions/8817171/shuffling-elements-in-a-list-randomly-re-arrange-list-elements
+            From ! {replycbc, ok_shuffleMessages, {Buffer, NewBuffer}},
+            loop(Datei, Registered, Auto, NewBuffer);
 
         Any -> 
             util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
