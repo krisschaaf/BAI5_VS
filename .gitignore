@@ -1,6 +1,4 @@
 .DS_Store
-src/logs
-src/*.log
 test/aufgHA/cbCast*@*.log
 test/aufgHA/towerCBC@*.log
 test/aufgHA/testCBC*.log
