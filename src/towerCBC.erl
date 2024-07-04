@@ -26,12 +26,10 @@ stop(PID) ->
     PID ! {self(), {stop}},
     receive
         {ok_stop} -> 
-            % unregister(towerKLCcbc), %TODO: get tower pid
             true
         after 5000 ->
             util:logging(Datei, "Timeout: TowerCBC not stopped, killing now...\n"),
             exit(whereis(PID), ok)
-            % unregister(towerKLCcbc)
     end.
 
 % reset(<PID>): wobei <PID> die Kontaktadresse des Multicast ist. Diese Funktion setzt den Multicast wieder in den initialen Zustand. 
@@ -84,10 +82,22 @@ loop(Datei, Registered, Auto, Buffer) ->
 
         % {<PID>,{multicastB,{<Message>,<VT>}}: als Nachricht. Sendet die Nachricht <Message> mit Vektorzeitstempel <VT> als ungeordneten, blockierenden Multicast an alle Gruppenmitglieder. 
         % Blockierend bedeutet, dass in der Zeit kein anderer Multicast versendet wird. <PID> ist eine PID und wird lediglich im Log vermerkt.
-        {From, {multicastB, {Message, VT}}} when is_pid(From) ->      
-            util:logging(Datei, "multicastB: "++util:to_String(Message)++" with VT: "++util:to_String(VT)++" by: "++util:to_String(From)++"\n"),
-            sendToAll(Datei, Registered, Message, VT),
-            loop(Datei, Registered, Auto, Buffer ++ [{Message, VT}]);
+        {From, {multicastB, {Message, VT}}} when is_pid(From) ->
+            case isListMember(From, Registered) of
+                false ->
+                    util:logging(Datei, "Not registered " ++ util:to_String(From) ++ "\n"),
+                    loop(Datei, Registered, Auto, Buffer);
+                true ->
+                    case vectorC:isVT(VT) of
+                        false ->
+                            util:logging(Datei, "Invalid VT in multicastB: "++util:to_String(VT)++"\n"),
+                            loop(Datei, Registered, Auto, Buffer);
+                        true ->
+                            util:logging(Datei, "multicastB: "++util:to_String(Message)++" with VT: "++util:to_String(VT)++" by: "++util:to_String(From)++"\n"),
+                            sendToAll(Datei, Registered, {Message, VT}),
+                            loop(Datei, Registered, Auto, Buffer ++ [{Message, VT}])
+                    end
+            end;
 
         % {<PID>,{multicastNB,{<Message>,<VT>}}}: als Nachricht. Sendet die Nachricht <Message> mit Vektorzeitstempel <VT> als ungeordneten, nicht blockierenden Multicast an alle Gruppenmitglieder. 
         % Nicht blockierend bedeutet, dass in der Zeit andere Multicast versendet werden können. <PID> ist eine PID und wird lediglich im Log vermerkt.
@@ -95,8 +105,20 @@ loop(Datei, Registered, Auto, Buffer) ->
             util:logging(Datei, "MulticastNB not allowed in auto mode\n"),
             loop(Datei, Registered, Auto, Buffer);
         {From, {multicastNB, {Message, VT}}} when is_pid(From) and not(Auto) ->
-            util:logging(Datei, "multicastNB: "++util:to_String(Message)++" with VT: "++util:to_String(VT)++" by: "++util:to_String(From)++"\n"),
-            loop(Datei, Registered, Auto, Buffer ++ [{Message, VT}]);
+            case isListMember(From, Registered) of
+                false ->
+                    util:logging(Datei, "Not registered " ++ util:to_String(From) ++ "\n"),
+                    loop(Datei, Registered, Auto, Buffer);
+                true ->
+                    case vectorC:isVT(VT) of
+                        false ->
+                            util:logging(Datei, "Invalid VT in multicastNB: " ++ util:to_String(VT) ++ "\n"),
+                            loop(Datei, Registered, Auto, Buffer);
+                        true ->
+                            util:logging(Datei, "multicastNB: " ++ util:to_String(Message)++ " with VT: " ++ util:to_String(VT)++" by: " ++ util:to_String(From) ++ "\n"),
+                            loop(Datei, Registered, Auto, Buffer ++ [{Message, VT}])
+                    end
+            end;
 
         % {<PID>,{multicastM,<CommNR>,<MessageNR>}}: als Nachricht. Sendet die vorhandene Nachricht <MessageNR> an die registrierte Kommunikationseinheit  <CommNR>. 
         % Dies geht nur im Zustand manu.
@@ -104,18 +126,22 @@ loop(Datei, Registered, Auto, Buffer) ->
             util:logging(Datei, "MulticastM not allowed in auto mode\n"),
             From ! {replycbc, error_send},
             loop(Datei, Registered, Auto, Buffer);
-        {From, {multicastM, CommNR, MessageNR}} when is_pid(From), not(Auto), is_integer(CommNR), is_integer(MessageNR), CommNR>0, MessageNR>0-> 
+        {From, {multicastM, CommNR, MessageNR}} when is_pid(From), not(Auto), is_integer(CommNR), is_integer(MessageNR), CommNR>0, MessageNR>0, CommNR =< length(Registered), MessageNR =< length(Buffer) -> 
             Comm = getElementByIndex(Registered, CommNR - 1), % Receiver Index beginnt bei 0
             Result = getElementByIndex(Buffer, MessageNR - 1), % Buffer Index beginnt bei 0
             util:logging(Datei, util:to_String(Result)++"\n"),
             case Result of
-                {Message, VT} -> 
+                {Message, VT} when is_pid(Comm) -> 
                     Comm ! {self(), {castMessage, {Message, VT}}},
                     util:logging(Datei, "Send "++util:to_String(Message)++" to "++util:to_String(CommNR)++"\n"),
                     From ! {replycbc, ok_send};
                 _ -> 
                     From ! {replycbc, error_send}
             end,
+            loop(Datei, Registered, Auto, Buffer);
+        {From, {multicastM, CommNR, MessageNR}} ->
+            util:logging(Datei, "MulticastM: "++util:to_String(CommNR)++" with MessageNR: "++util:to_String(MessageNR)++" by: "++util:to_String(From)++"...not possible\n"),
+            From ! {replycbc, error_send},
             loop(Datei, Registered, Auto, Buffer);
 
         % {<PID>,{reset}}: als Nachricht. Setzt den Multicast wieder in den initialen Zustand.
@@ -133,6 +159,7 @@ loop(Datei, Registered, Auto, Buffer) ->
             loop(Datei, Registered, Auto, Buffer);
         
         {From, {stop}} when is_pid(From)->
+            unregister(towerKLCcbc),
             From ! {ok_stop};
 
         Any -> 
@@ -148,12 +175,12 @@ isListMember(Element, [Element | _]) ->
 isListMember(Element, [_ | Tail]) ->
     isListMember(Element, Tail).
 
-sendToAll(_Datei, [], _Message, _VT) ->
+sendToAll(_Datei, [], _Message) ->
     ok;
-sendToAll(Datei, [Head | Tail], Message, VT) ->
-    Head ! {self(), {castMessage, {Message, VT}}},
+sendToAll(Datei, [Head | Tail], Message) ->
+    Head ! {self(), {castMessage, Message}},
     util:logging(Datei, "send to "++util:to_String(Head)++"\n"),
-    sendToAll(Datei, Tail, Message, VT).
+    sendToAll(Datei, Tail, Message).
 
 logAll(_Datei, []) ->
     ok;

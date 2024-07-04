@@ -219,20 +219,55 @@ Die Funktion \textit{aftereqVTJ/2} (siehe Abb. \ref{fig:flow_aftereqvtj_realisie
 
 \subsubsection{init/1}
 
+Wie bereits in Kapitel \ref{towercbc_init_entwurf} beschrieben, kann der \textit{Tower} in zwei verschiedenen Modi gestartet werden. Diese werden dem Prozess als boolean übergeben. Der Prozess wird im folgenden als der \textit{Prozess des TowerCBCs} bezeichnet. Wird als Parameter \textit{auto} übergeben, wird die Variable \textit{Auto} auf true gesetzt. Für den Parameter \textit{manu} wird \textit{Auto} als false gespeichert. In der Variable \textit{Registered} werden alle registrierten \textit{Prozesse der Kommunikationseinheiten} gespeichert. Die Variable ist eine Liste nach dem FiFo Prinzip. Dies wird in Kapitel \ref{towercbc_register_realisierung} genauer beschrieben. Auch die letzte Variable \textit{Buffer} ist eine Liste nach dem FiFo Prinzip. In dieser Liste werden alle Nachrichten welche über die Schnittstelle, beschrieben in Kapitel \ref{towercbc_nb_realisierung}, empfangen werden, gespeichert.
+
+\begin{lstlisting}
+loop(Datei, Registered, Auto, Buffer) ->
+    receive
+        ...
+    end.
+\end{lstlisting}
+
 \subsubsection{stop/1}
+
+Das Stoppen des Prozesses funktioniert wie in Kapitel \ref{cbcast_stop_realisierung}.
 
 \subsubsection{listall/0}
 
+Diese Funktion schickt eine Nachricht an den \textit{Prozess des TowerCBCs} welcher daraufhin alle, in der Variable \textit{Registered}, gespeicherten Prozess Ids in die zu loggende Datei schreibt. 
+
 \subsubsection{cbcast/2}
 
-\subsubsection{$\{\langle PID \rangle,\{register,\langle RPID\rangle\}\}$}
+Als Parameter empfängt diese Funktion zwei Integer, welche zuerst auf den richtigen Datentypen geprüft werden. Die Parameter sind Indexe für die beiden Listen, welche im \textit{Prozess des TowerCBCs} gespeichert sind. Um sicherzustellen, dass diese Indexe mindestens größer als 0 sind ist diese Bedingung als Guard in der Funktion integriert. Anschließend wird eine Nachricht an den \textit{Prozess des TowerCBCs} geschickt. Diese ist in Kapitel \ref{towercbc_m_realisierung} aufgeführt.
 
-\subsubsection{$\{\langle PID\rangle,\{multicastB,\{\langle Message\rangle,\langle VT\rangle\}\}\}$}
+\subsubsection{$\{\langle PID \rangle,\{register,\langle RPID\rangle\}\}$} \label{towercbc_register_realisierung}
 
-\subsubsection{$\{\langle PID\rangle,\{multicastNB,\{\langle Message\rangle,\langle VT\rangle\}\}\}$}
+Beim Senden an diese Schnittstelle wird über die Hilfsfunktion \textit{isListMember/2} geprüft ob die mitgeschickte Prozess ID \textit{RPID} bereits in der Liste \textit{Registered} enthalten ist. Ist dies der Fall, ist die Antwort an den Sender der Nachricht $\{replycbc, ok_existing\}$. Wenn nicht, dann wird die Prozess ID der Liste hinzugefügt und die Antwort ist $\{replycbc, ok_registered\}$.
 
-\subsubsection{$\{\langle PID\rangle,\{multicastM,\langle CommNR\rangle,\langle MessageNR\rangle\}\}$}
+\subsubsection{$\{\langle PID\rangle,\{multicastB,\{\langle Message\rangle,\langle VT\rangle\}\}\}$} \label{towercbc_b_realisierung}
 
+Auch bei dieser Schnittstelle wird die Hilfsfunktion \textit{isListMember/2} genutzt um sicherzustellen, dass keine, nicht im \textit{Prozess des TowerCBCs} registrierten Prozesse, Nachrichten via \textit{Multicast} verschicken können. Ist die Registrierung bestätigt wird die, in der Nachricht mitgeschickte, Vektoruhr über die Funktion \textit{vectorC:isVT/1} auf syntaktische Echtheit geprüft. Ist auch dieser Test bestanden, wird die Nachricht an alle \textit{Prozesse der Kommunikationseinheiten} geschickt, welche in der Liste \textit{Registered} enthalten sind. 
+
+\subsubsection{$\{\langle PID\rangle,\{multicastNB,\{\langle Message\rangle,\langle VT\rangle\}\}\}$} \label{towercbc_nb_realisierung}
+
+Wie bereits in Kapitel \ref{towercbc_init_entwurf} beschrieben, ist diese Schnittstelle nur im \textit{manu} Modus möglich. Die Variable \textit{Auto} muss also false sein. Ähnlich zur vorherigen Schnittstelle (siehe Kapitel \ref{towercbc_b_realisierung}) wird in dieser zuerst der Sender der Nachricht überprüft. Ist dieser Registriert und ist die mitgeschickte Vektoruhr validiert wird die Nachricht an die im \textit{Prozess des TowerCBCs} gespeicherte Liste \textit{Buffer} angehängt.
+
+\subsubsection{$\{\langle PID\rangle,\{multicastM,\langle CommNR\rangle,\langle MessageNR\rangle\}\}$} \label{towercbc_m_realisierung}
+
+Die letzte Schnittstelle wird über \textit{cbcast/2} aufgerufen. Diese Funktion überprüft bereits ob die beiden Indizes \textit{CommNR} und \textit{MessageNR} größer 0 sind. Um Angriffe von außen zu vermeiden, wird diese Prüfung erneut vorgenommen. Zusätzlich kann nun geprüft werden, dass die beiden Indizes nicht größer als die Länge der jeweilig zugehörigen Liste sind. Über die Hilfsfunktion \textit{getElementByIndex/2} werden der entsprechende \textit{Prozess der Kommunikationseinheit} und die entsprechende Nachricht ermittelt. Über einen Guard und Pattern Matching kann in einer Zeile überprüft werden, dass die gefundenen Elemente dem korrekten Datentypen entsprechen (siehe Listing \ref{towercbc_m_realisierung_code} Zeile 4).
+Ist der Test erfolgreich wird die Nachricht an den Empfänger geschickt und mit $\{replycbc, ok_send\}$ geantwortet. Schlägt der Test fehlt wird mit $\{replycbc, error_send\}$ geantwortet.
+
+\begin{lstlisting}[caption={Codeausschnitt multicastM},captionpos=b, label={towercbc_m_realisierung_code}]
+Comm = getElementByIndex(Registered, CommNR - 1), % Receiver Index beginnt bei 0
+Result = getElementByIndex(Buffer, MessageNR - 1), % Buffer Index beginnt bei 0
+case Result of
+    {Message, VT} when is_pid(Comm) -> 
+        ...
+        From ! {replycbc, ok_send};
+    _ -> 
+        From ! {replycbc, error_send}
+end,
+\end{lstlisting}
 
 \subsection{Vektoruhr Zentrale/Tower}
 

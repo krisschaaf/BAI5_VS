@@ -16,7 +16,7 @@ init() ->
     end,
 
     CommCBC = spawn(fun() -> loop(Datei, {Servername, Servernode}) end),
-    register(cbCast,CommCBC),
+    % register(cbCast,CommCBC),
     
     {Servername, Servernode} ! {self(), {register, CommCBC}},
     receive
@@ -36,12 +36,10 @@ stop(Comm) ->
     Comm ! {self(), {stop}},
     receive
         {ok_stop} -> 
-            % unregister(cbCast), %TODO: get Comm pid
             done
         after 5000 ->
             util:logging(Datei, "Timeout: CbCast not stopped, killing now...\n"),
             exit(whereis(Comm), ok)
-            % unregister(cbCast)
     end.
 
 % send(Comm,Message): sendet eine Nachricht Message über die Kommunikationseinheit Comm als kausaler Multicast an alle anderen in der Gruppe.
@@ -53,7 +51,7 @@ send(Comm, Message) ->
         {replycbcast, ok_send} -> 
             done
         after 1000 -> 
-            util:logging(Datei, "Timeout: Message '"++util:to_String(Message)+"' could not be sent\n")
+            util:logging(Datei, "Timeout: Message '"++util:to_String(Message)++"' could not be sent\n")
     end.
 
 % received(Comm): empfängt blockierend eine Nachricht von der Kommunikationseinheit Comm. Die Rückgabe ist eine Zeichenkette.
@@ -62,14 +60,6 @@ received(Comm) ->
     receive 
         {replycbcast, ok_getMessage, {true, Message}} -> Message
     end.
-
-listQueues(Comm) ->
-    Comm ! {self(), {listQueues}},
-    receive
-        {replycbcast, ok_listQueues} -> ok %TODO: replycbc überall anpassen
-    after 1000 -> false
-    end.
-
 
 % read(Comm): empfängt nicht blockierend eine Nachricht von der Kommunikationseinheit Comm. 
 % Wenn keine Nachricht vorhanden ist, wird null zurück gegeben, sonst eine Zeichenkette.
@@ -81,6 +71,14 @@ read(Comm) ->
         {replycbcast, ok_getMessage, {false, Message}} -> Message
         after 1000 -> util:logging(Datei, "Timeout: Could not read Message\n")
     end.
+
+listQueues(Comm) ->
+    Comm ! {self(), {listQueues}},
+    receive
+        {replycbcast, ok_listQueues} -> ok
+    after 1000 -> false
+    end.
+
 
 % Die initialisierung der VT muss aus dem richtigten Prozess heraus gestartet werden.
 loop(Datei, TowerCBC) ->
@@ -134,7 +132,7 @@ loop(Datei, TowerCBC, Queues) ->
                                 after 1000 -> util:logging(Datei, "Timeout: Could not sync VT\n")
                                 end,
                             loop(Datei, TowerCBC, Queues);
-                        {} -> 
+                        null -> 
                             case Blocking of
                                 true -> 
                                     util:logging(Datei, "Waiting on Message\n"),
@@ -157,8 +155,7 @@ loop(Datei, TowerCBC, Queues) ->
                                 false -> 
                                     From ! {replycbcast, ok_getMessage, {false, null}},
                                     loop(Datei, TowerCBC, Queues)
-                            end;
-                        _ -> error
+                            end
                     end
                 after 1000 -> util:logging(Datei, "Timeout: Could not pop Message from DLQ\n")
             end,
@@ -252,7 +249,7 @@ loopQueues(Datei, VT, HBQ, DLQ) ->
 
         {From, {listQueues}} when is_pid(From) ->
             util:logging(Datei, "HBQ: "++util:to_String(HBQ)++"\nDLQ: "++util:to_String(DLQ)++"\n"),
-            From ! {replyqueues, replycbc, ok_listQueues},
+            From ! {replyqueues, ok_listQueues},
             loopQueues(Datei, VT, HBQ, DLQ);
 
         Any -> 
@@ -309,7 +306,7 @@ removeFromList([Head|Tail], Element, NewList) ->
     removeFromList(Tail, Element, NewList++[Head]).
 
 % returns last Element and new List without last Element
-getLastElement([]) -> {[], []};
+getLastElement([]) -> {null, []};
 getLastElement(List) -> getLastElement(List, []).
 getLastElement([Head|[]], NewList) -> {Head, NewList};
 getLastElement([Head|Tail], NewList) -> getLastElement(Tail, NewList++[Head]).
