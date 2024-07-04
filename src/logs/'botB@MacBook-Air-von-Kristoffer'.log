@@ -1,0 +1,34 @@
+TowerCBC towerKLCcbc integrated via ping by Server 'towerCBC@MacBook-Air-von-Kristoffer'
+cbCast registered at towerKLCcbc with PID: <0.104.0> on Node 'botB@MacBook-Air-von-Kristoffer'
+TowerClock vtKLCclockC integrated via ping by Server 'towerClock@MacBook-Air-von-Kristoffer'
+VecID received: 2
+VT {2,[0,0]} ticked to {2,[0,1]}
+Message "2.1" with VT {2,[0,1]} sent from {cbCast,'botB@MacBook-Air-von-Kristoffer'}
+Message: "2.1" with Timestamp: {2,[0,1]} pushed to DLQ.
+Queues>>> Queues checked with VT {2,[0,1]} (HBQ empty).
+DLQ>>> Current Size 1.
+Queues checked.
+VT {2,[0,1]} ticked to {2,[0,2]}
+Message "2.2" with VT {2,[0,2]} sent from {cbCast,'botB@MacBook-Air-von-Kristoffer'}
+Message: "2.2" with Timestamp: {2,[0,2]} pushed to DLQ.
+Queues>>> Queues checked with VT {2,[0,2]} (HBQ empty).
+DLQ>>> Current Size 2.
+Queues checked.
+VT {2,[0,2]} ticked to {2,[0,3]}
+Message "2.3" with VT {2,[0,3]} sent from {cbCast,'botB@MacBook-Air-von-Kristoffer'}
+Message: "2.3" with Timestamp: {2,[0,3]} pushed to DLQ.
+Queues>>> Queues checked with VT {2,[0,3]} (HBQ empty).
+DLQ>>> Current Size 3.
+Queues checked.
+VT {2,[0,3]} ticked to {2,[0,4]}
+Message "2.4" with VT {2,[0,4]} sent from {cbCast,'botB@MacBook-Air-von-Kristoffer'}
+Message: "2.4" with Timestamp: {2,[0,4]} pushed to DLQ.
+Queues>>> Queues checked with VT {2,[0,4]} (HBQ empty).
+DLQ>>> Current Size 4.
+Queues checked.
+VT {2,[0,4]} ticked to {2,[0,5]}
+Message "2.5" with VT {2,[0,5]} sent from {cbCast,'botB@MacBook-Air-von-Kristoffer'}
+Message: "2.5" with Timestamp: {2,[0,5]} pushed to DLQ.
+Queues>>> Queues checked with VT {2,[0,5]} (HBQ empty).
+DLQ>>> Current Size 5.
+Queues checked.
