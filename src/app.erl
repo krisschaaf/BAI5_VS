@@ -134,34 +134,34 @@ sendMessages(Datei, CbCast1, CbCast2) ->
     util:logging(Datei, "\nSending messages...\n"),
 
     R1 = cbCast:send(CbCast1, "1.1"),
-    util:logging(Datei, "Sent 1.1 to CbCast1: " ++ util:to_String(R1) ++ "\n"),
+    util:logging(Datei, "Sent 1.1 from CbCast1: " ++ util:to_String(R1) ++ "\n"),
 
     R2 = cbCast:send(CbCast2, "2.1"),
-    util:logging(Datei, "Sent 2.1 to CbCast2: " ++ util:to_String(R2) ++ "\n"),
+    util:logging(Datei, "Sent 2.1 from CbCast2: " ++ util:to_String(R2) ++ "\n"),
 
     R3 = cbCast:send(CbCast1, "1.2"),
-    util:logging(Datei, "Sent 1.2 to CbCast1: " ++ util:to_String(R3) ++ "\n"),
+    util:logging(Datei, "Sent 1.2 from CbCast1: " ++ util:to_String(R3) ++ "\n"),
 
     R4 = cbCast:send(CbCast2, "2.2"),
-    util:logging(Datei, "Sent 2.2 to CbCast2: " ++ util:to_String(R4) ++ "\n"),
+    util:logging(Datei, "Sent 2.2 from CbCast2: " ++ util:to_String(R4) ++ "\n"),
 
     R5 = cbCast:send(CbCast2, "2.3"),
-    util:logging(Datei, "Sent 2.3 to CbCast2: " ++ util:to_String(R5) ++ "\n"),
+    util:logging(Datei, "Sent 2.3 from CbCast2: " ++ util:to_String(R5) ++ "\n"),
 
     R6 = cbCast:send(CbCast1, "1.3"),
-    util:logging(Datei, "Sent 1.3 to CbCast1: " ++ util:to_String(R6) ++ "\n"),
+    util:logging(Datei, "Sent 1.3 from CbCast1: " ++ util:to_String(R6) ++ "\n"),
 
     R7 = cbCast:send(CbCast1, "1.4"),
-    util:logging(Datei, "Sent 1.4 to CbCast1: " ++ util:to_String(R7) ++ "\n"),
+    util:logging(Datei, "Sent 1.4 from CbCast1: " ++ util:to_String(R7) ++ "\n"),
 
     R8 = cbCast:send(CbCast1, "1.5"),
-    util:logging(Datei, "Sent 1.5 to CbCast1: " ++ util:to_String(R8) ++ "\n"),
+    util:logging(Datei, "Sent 1.5 from CbCast1: " ++ util:to_String(R8) ++ "\n"),
 
     R9 = cbCast:send(CbCast2, "2.4"),
-    util:logging(Datei, "Sent 2.4 to CbCast2: " ++ util:to_String(R9) ++ "\n"),
+    util:logging(Datei, "Sent 2.4 from CbCast2: " ++ util:to_String(R9) ++ "\n"),
 
     R10 = cbCast:send(CbCast2, "2.5"),
-    util:logging(Datei, "Sent 2.5 to CbCast2: " ++ util:to_String(R10) ++ "\n").
+    util:logging(Datei, "Sent 2.5 from CbCast2: " ++ util:to_String(R10) ++ "\n").
 
 
 shuffleMessages(Datei, TowerCBC) ->
@@ -207,7 +207,7 @@ forwardMessages(Datei, TowerCBCNode) ->
 
 
 readMessages(Datei, CbCast3) ->
-    util:logging(Datei, "\Read messages...\n"),
+    util:logging(Datei, "\nRead messages...\n"),
     
     N1 = cbCast:read(CbCast3),
     util:logging(Datei, "Read from CbCast3: " ++ util:to_String(N1) ++ "\n"),
