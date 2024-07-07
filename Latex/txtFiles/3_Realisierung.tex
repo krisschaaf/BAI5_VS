@@ -93,7 +93,7 @@ loop(Datei, TowerCBC, Queues) ->
 
 Wie bereits in Kapitel \ref{commModule_stop} beschrieben, wird das Stoppen zuerst durch einen \textit{Graceful Shutdown} versucht. Dieser schickt eine Nachricht an den Prozess nach dessen Bearbeitung dieser sich selbst nicht wieder aufruft und somit terminiert. Schlägt dies fehl, wird nach einem Timeout die \textit{erlang} Funktion \textit{exit/2} aufgerufen und ein \textit{Hard Shutdown} durchgeführt.
 
-\subsubsection{send/2}
+\subsubsection{send/2} \label{cbcast_send_realisierung}
 
 Versendet wird eine Nachricht indem diese an den \textit{Prozess der Kommunikationseinheit} (\textit{cbCast Prozess}) geschickt wird (siehe Abb. \ref{fig:sequence_send_realisierung}).
 
@@ -104,7 +104,7 @@ Versendet wird eine Nachricht indem diese an den \textit{Prozess der Kommunikati
 \end{center}
 \end{figure}
 
-\subsubsection{read/1 \& received/1}
+\subsubsection{read/1 \& received/1} \label{cbcast_read_received_realisierung}
 
 Um eine Nachricht auszuliefern wird auch hier der \textit{Prozess der Kommunikationseinheit} (\textit{cbCast Prozess}) angesprochen. Beide Arten der Auslieferung schicken an die gleiche Schnittstelle. Die fragt dann über den mitgeschickten Parameter \textit{Blocking} ab ob blockierend oder nicht blockierend ausgeliefert werden soll.
 
@@ -300,3 +300,66 @@ Das Stoppen des Prozesses funktioniert wie in Kapitel \ref{cbcast_stop_realisier
 \subsubsection{$\{getVecID,\langle PID\rangle\}$}
 
 Diese Schnittstelle empfängt eine Prozess ID. Anschließend wird überprüft ob in der Map des Prozesses bereits ein Objekt mit einer solchen Prozess ID gespeichert ist. Wenn ja, wird die zugehörige Identität zurückgeschickt. Ansonsten wird eine neue Identität erzeugt, mit der Prozess ID zusammen in der Map gespeichert und zurückgeschickt. Diese neue Identität berechnet sich durch $length(Map) + 1$.
+
+\newpage
+
+\subsection{Anwendung}
+
+Zur Demonstration der korrekten Ausarbeitung wurde eine Anwendung implementiert. Diese liegt in der \textit{app.erl}.
+Aufgabe der Anwendung ist, ein Szenario zu demonstrieren (siehe Abb. \ref{seq:entwurf_anwendung}), in welchem zuerst Nachrichten von verschiedenen Nutzern an einen Multicast geschickt werden. Aufgrund eines simulierten Fehlers, werden im Multicast alle Nachrichten in der Reihenfolge vertauscht. Anschließend liest ein dritter Nutzer die Nachrichten aus. Die kausale Ordnung muss bestehen bleiben.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[scale=0.45]{Latex/Bilder/entwurf.png}
+\caption{\label{seq:entwurf_anwendung} Entwurf der Anwendung}
+\end{center}
+\end{figure}
+
+Nach erfolgreicher Ausführung sind folgende Logs (siehe Abb. \ref{logs_anwendung}) zu sehen:
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[scale=0.3]{Latex/Bilder/app_log.001.png}
+\caption{\label{logs_anwendung} Entwurf der Anwendung}
+\end{center}
+\end{figure}
+
+Die totale Ordnung ist nicht mehr vorhanden, zum Beispiel ist zuerst die Nachricht '1.1' und dann die Nachricht '2.1' versendet worden. Ausgeliefert wird aber zuerst die '2.1' und dann die '1.1'. Die kausale Ordnung ist aber noch intakt. Die Reihenfolge der von \textit{cbCast1} und \textit{cbCast2} gesendeten Nachrichten stimmt soweit, wenn man diese getrennt voneinander betrachtet. Nach '2.1' folgt '2.2' und nach '1.1' folgt '1.2', usw.. 
+
+\subsubsection{Implementierungsbesonderheiten}
+
+Um die Schnittstellen der jeweiligen Module nicht zu verändern wurden in der \textit{app.erl} verschiedenen Hilfsfunktionen implementiert. 
+
+\paragraph{cbCast}
+
+Das Starten und lokale Registrieren der \textit{Prozesse der Kommunikationseinheiten} erfolgt remote über ein \textit{spawn/2}. Die Hilfsfunktion \textit{startC/1} ist in der \textit{app.erl} implementiert, wird aber auf dem Node des jeweiligen \textit{Prozesses der Kommunikationseinheit} ausgeführt. Somit kann eine lokale Prozess ID erzeugt werden und der Prozess mit einem individuellen Namen registriert werden.
+
+\begin{lstlisting}
+% app.erl 
+
+% Verbindungsaufbau
+case net_adm:ping(CbCast1Node) of ...
+
+% Erzeugen des Prozesses remote auf dem Node des Comms
+spawn(CbCast1Node, fun() -> startC(CbCastName) end)
+
+% Hilfsfunktion um Prozess lokal auf dessen Node zu registrieren
+startC(Name) ->
+    CommCBC = cbCast:init(),
+    erlang:register(Name,CommCBC),
+    ...
+\end{lstlisting}
+
+\paragraph{towerCBC}
+
+Der \textit{Tower} empfängt für die Anwendung eine zusätzliche Schnittstelle \\$\{From, \{shuffleMessages\}\}$. In dieser werden alle Nachrichten, welche in der Variable \textit{Buffer} gespeichert, sind gemischt. Aufgerufen wird die Schnittstelle vom Prozess der Anwendung aus.
+
+\begin{lstlisting}
+% app.erl
+
+Tower ! {{app, erlang:node()}, {shuffleMessages}},
+    receive
+        {replycbc, ok_shuffleMessages, {OldBuffer, NewBuffer}} -> ...
+    after 1000 -> ...
+    end.
+\end{lstlisting}

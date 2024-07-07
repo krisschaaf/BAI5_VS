@@ -2,6 +2,13 @@
 
 -export([init/0, start/1, stop/1]).
 
+startC(Name) ->
+    Datei = "logs/"++util:to_String(erlang:node())++".log",
+    CommCBC = cbCast:init(),
+    erlang:register(Name,CommCBC),
+    util:logging(Datei, util:to_String(Name)++" locally registered with PID: "++util:to_String(CommCBC)++"\n"),
+    CommCBC.
+
 init() ->
     Datei = "logs/"++util:to_String(erlang:node())++".log",
 
@@ -61,9 +68,9 @@ init() ->
     
     util:logging(Datei, "Tower initialized, initialize Comms...\n"),
     
-    rpc:call(CbCast1Node, cbCast, init, []),
-    rpc:call(CbCast2Node, cbCast, init, []),
-    rpc:call(CbCast3Node, cbCast, init, []),
+    spawn(CbCast1Node, fun() -> startC(CbCastName) end),
+    spawn(CbCast2Node, fun() -> startC(CbCastName) end),
+    spawn(CbCast3Node, fun() -> startC(CbCastName) end),
 
     Tower = {{TowerClockName, TowerClockNode}, {TowerCBCName, TowerCBCNode}},
     Comms = {{CbCastName, CbCast1Node}, {CbCastName, CbCast2Node}, {CbCastName, CbCast3Node}},
@@ -116,14 +123,13 @@ loop(Datei, Tower, Comms) ->
 
 run(Datei, Tower, Comms) -> 
     {_, TowerCBC} = Tower,
-    {_, TowerCBCNode} = TowerCBC,
     {CbCast1, CbCast2, CbCast3} = Comms,
 
     sendMessages(Datei, CbCast1, CbCast2),
 
     shuffleMessages(Datei, TowerCBC),
 
-    forwardMessages(Datei, TowerCBCNode),
+    forwardMessages(Datei, TowerCBC),
 
     readMessages(Datei, CbCast3),
     
@@ -164,15 +170,19 @@ sendMessages(Datei, CbCast1, CbCast2) ->
     util:logging(Datei, "Sent 2.5 from CbCast2: " ++ util:to_String(R10) ++ "\n").
 
 
-shuffleMessages(Datei, TowerCBC) ->
+shuffleMessages(Datei, Tower) ->
     util:logging(Datei, "\nShuffle messages...\n"),
 
-    {OldBuffer, NewBuffer} = towerCBC:shuffleMessages(TowerCBC),
-    util:logging(Datei, "\nOldBuffer: \n" ++ util:to_String(OldBuffer) ++ "\n"),
-    util:logging(Datei, "\nNewBuffer: \n" ++ util:to_String(NewBuffer) ++ "\n").
+    Tower ! {{app, erlang:node()}, {shuffleMessages}},
+    receive
+        {replycbc, ok_shuffleMessages, {OldBuffer, NewBuffer}} -> 
+            util:logging(Datei, "\nOldBuffer: \n" ++ util:to_String(OldBuffer) ++ "\n"),
+            util:logging(Datei, "\nNewBuffer: \n" ++ util:to_String(NewBuffer) ++ "\n")
+    after 1000 -> 
+        util:logging(Datei, "Timeout: ShuffleMessages not completed\n")
+    end.
 
-
-forwardMessages(Datei, TowerCBCNode) ->
+forwardMessages(Datei,  {_, TowerCBCNode}) ->
     util:logging(Datei, "\nForwarding messages...\n"),
 
     C1 = rpc:call(TowerCBCNode, towerCBC, cbcast, [3, 1]),

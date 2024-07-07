@@ -24,7 +24,7 @@ Dann app:start(app) um die eigentliche App zu starten.
 
 Aufruf von app:stop(app) beendet die App.
 
-```erlang
+```bash
 krisschaaf...:~/.../src|⇒ erl -sname 'app@MacBook-Air-von-Kristoffer' -setcookie zumsl
 Erlang/OTP 26 [erts-14.2.2] [source] [64-bit] [smp:8:8] [ds:8:8:10] [async-threads:1] [jit] [dtrace]
 

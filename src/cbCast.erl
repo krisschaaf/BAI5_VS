@@ -16,7 +16,6 @@ init() ->
     end,
 
     CommCBC = spawn(fun() -> loop(Datei, {Servername, Servernode}) end),
-    register(cbCast,CommCBC), % !important for testing application!
     
     {Servername, Servernode} ! {self(), {register, CommCBC}},
     receive
@@ -153,6 +152,7 @@ loop(Datei, TowerCBC, Queues) ->
                                             end
                                     end;
                                 false -> 
+                                    util:logging(Datei, "Message: 'null' read.\n"),
                                     From ! {replycbcast, ok_getMessage, {false, null}},
                                     loop(Datei, TowerCBC, Queues)
                             end
@@ -221,6 +221,7 @@ loopQueues(Datei, VT, HBQ, DLQ) ->
                     util:logging(Datei, "Message: "++util:to_String(Message)++" popped from DLQ.\n"),
                     loopQueues(Datei, VT, HBQ, NewDLQ);
                 _ -> 
+                    util:logging(Datei, "Message: 'null' popped from DLQ.\n"),
                     loopQueues(Datei, VT, HBQ, DLQ)
             end;
 
