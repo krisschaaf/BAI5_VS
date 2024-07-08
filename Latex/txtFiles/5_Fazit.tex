@@ -1,1 +1,26 @@
 \section{Fazit}
+
+\subsection{Von der Theorie zur Praxis}
+
+Zu Beginn der Ausarbeitung waren viele Fragen offen. Als Gruppe haben wir die Vielzahl an Schnittstellen und den neuen Algorithmus diskutiert und technische Fragen geklärt. Literatur spezifisch zum Thema \textit{CBCAST}-Algorithmus zu finden, hat sich als schwieriger herausgestellt.\\
+Nachdem eine erste Idee entstanden ist, hat das Entwerfen verschiedener Ablauf- und Sequenzdiagramme vieles erleichtert. Parallel wurde in Einzelarbeit der Entwurf geschrieben und der Code implementiert. Die Realisierung ist nachträglich aufgearbeitet worden.\\
+Während des gesamten Prozesses wurden immer mehr Fragen geklärt, wodurch das Schreiben der Analyse und die Implementierung der Anwendung vergleichsweise wenig Zeit gekostet haben.
+
+\subsection{Bewertung des Algorithmus mit Hilfe der Anwendung}
+
+Die Anwendung simuliert folgendes Verhalten:
+
+\begin{enumerate}
+    \item Zwei verschiedene Prozesse schicken Nachrichten zum Multicast
+    \item Die Reihenfolge der Nachrichten wird im Buffer des Multicasts verändert
+    \item Die Nachrichten werden zu einem dritten Prozess weitergeleitet.
+    \item Der dritte Prozess liefert die Nachrichten in korrekter Reihenfolge nach kausaler Ordnung aus
+\end{enumerate}
+
+Dieser Ablauf kann zum Beispiel mit dem Verschicken mehrerer Mails von zwei verschiedenen Usern an einen dritten User verglichen werden. Die Reihenfolge der Mails betrachtet pro Sender wird weiterhin eingehalten. Auch wenn vom Email-Provider Nachrichten vertauscht werden, durch zum Beispiel einen internen Fehler oder einen Angriff von außen.\\
+
+Vor allem die Robustheit des Algorithmus wird durch die Anwendung bewiesen. Trotz der zusätzlichen Vertauschung der Nachrichten bleibt die kausale Ordnung bestehen.\\
+Der \textit{CBCAST}-Algorithmus ist also eine effiziente und mittelschwer implementierbare Lösung zum Verschicken von Nachrichten, wenn die kausale Ordnung bewahrt werden muss. Wichtig ist hierbei, dass nur die kausale und nicht die totale Ordnung bestehen bleibt. Durch das Nutzen der logischen Vektoruhren ist sichergestellt, dass die einzelnen Teilnehmer nicht auf Systemzeiten angewiesen sind.\\
+
+% TODO backdating Attacken 
+Anfällig ist der Algorithmus allerdings für sogenannte \textit{backdating} und \textit{forthdating} Attacken. Diese täuschen Nachrichten mit falschen Vektoruhren vor, wodurch andere Nachrichten verloren gehen können. Mit einer sicheren Firewall und anderen Schutzmechanismen sind diese Attacken aber abzuhalten. Das System ist dadurch also genau so sicher, wie die meisten anderen Systeme auch.

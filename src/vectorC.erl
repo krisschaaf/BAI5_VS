@@ -93,7 +93,9 @@ aftereqVTJ(VT, VTR) ->
     end.
 
 
-% Hilfsfunktionen
+% -------------------------------------- Hilfsfunktionen --------------------------------------
+
+
 zeros(0) ->
     [];
 zeros(N) when N < 0 ->

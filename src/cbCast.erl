@@ -71,6 +71,7 @@ read(Comm) ->
         after 1000 -> util:logging(Datei, "Timeout: Could not read Message\n")
     end.
 
+% Schnittstelle zum Anzeigen der Inhalte der Holdback- und Delivery Queue. Genutzt für Debug-Zwecke
 listQueues(Comm) ->
     Comm ! {self(), {listQueues}},
     receive
@@ -79,13 +80,16 @@ listQueues(Comm) ->
     end.
 
 
-% Die initialisierung der VT muss aus dem richtigten Prozess heraus gestartet werden.
+% -------------------------------------- Prozesse --------------------------------------
+
+
+% Die Initialisierung der VT muss aus dem richtigten Prozess heraus gestartet werden.
 loop(Datei, TowerCBC) ->
     VT = vectorC:initVT(),
     Queues = spawn(fun() -> loopQueues(Datei, VT, [], []) end),
     loop(Datei, TowerCBC, Queues).
 
-
+% Hauptprozess für die Anwendung
 loop(Datei, TowerCBC, Queues) ->
 	receive
         % {<PID>,{castMessage,{<Message>,<VT>}}}: als Nachricht. Empfängt die Nachricht <Message> mit Vektorzeitstempel <VT>. <PID> wird nicht benötigt.
@@ -200,6 +204,7 @@ loop(Datei, TowerCBC, Queues) ->
             loop(Datei, TowerCBC, Queues)
 	end.
 
+% Prozess für die Holdback- und Delivery Queue
 loopQueues(Datei, VT, HBQ, DLQ) ->
     receive
         {From, {pushHBQ, {Message, NewVT}}} when is_pid(From) ->
@@ -257,6 +262,10 @@ loopQueues(Datei, VT, HBQ, DLQ) ->
             util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
             loopQueues(Datei, VT, HBQ, DLQ)
     end.
+
+
+% -------------------------------------- Hilfsfunktionen --------------------------------------
+
 
 % returns new DLQ
 % new msg are added to the head of the list

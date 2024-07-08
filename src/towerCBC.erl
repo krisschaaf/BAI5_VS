@@ -62,6 +62,10 @@ cbcast(Receiver, MessageNumber) when is_integer(Receiver), is_integer(MessageNum
     after 1000 -> false
     end.
 
+
+% -------------------------------------- Prozesse --------------------------------------
+
+
 loop(Datei, Registered, Auto, Buffer) ->
     receive
         % {<PID>,{register,<RPID>}}: als Nachricht. Registriert die Kommunikationseinheit <RPID> beim Multicast. 
@@ -162,7 +166,7 @@ loop(Datei, Registered, Auto, Buffer) ->
             unregister(towerKLCcbc),
             From ! {ok_stop};
 
-        % Interface needed for testing application
+        % Schnittstelle wird für die in der app.erl implementierten Anwendung benötigt. 
         {From, {shuffleMessages}} ->
             util:logging(Datei, "Shuffle messages...\n"),
             NewBuffer = [X||{_,X} <- lists:sort([ {rand:uniform(), N} || N <- Buffer])], % https://stackoverflow.com/questions/8817171/shuffling-elements-in-a-list-randomly-re-arrange-list-elements
@@ -173,6 +177,9 @@ loop(Datei, Registered, Auto, Buffer) ->
             util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
             loop(Datei, Registered, Auto, Buffer)
     end.
+
+
+% -------------------------------------- Hilfsfunktionen --------------------------------------
 
 
 isListMember(_, []) ->

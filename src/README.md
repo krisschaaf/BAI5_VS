@@ -2,7 +2,6 @@
 
 ## testCBC:test()
 
-- im cbCast.erl muss das register/2 auskommentiert werden
 - ein Ordner logs muss im Projektverzeichnis erstellt werden (auf gleicher Ebene wie die *.erl Dateien)
 
 ## app.erl
@@ -12,7 +11,6 @@
 - ein Ordner logs muss im Projektverzeichnis erstellt werden (auf gleicher Ebene wie die *.erl Dateien)
 - die app.cfg muss angepasst werden
 - es müssen 5 Nodes gestartet werden. Default config: towerCBC@... , towerClock@..., botA@..., botB@..., botC@...
-- im cbCast.erl muss das register/2 einkommentiert werden
 
 ### Ausführung
 

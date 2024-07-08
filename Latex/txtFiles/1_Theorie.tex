@@ -34,8 +34,7 @@ Es gibt vier verschiedene Positionen die Vektoruhren zueinander haben können:
 \end{itemize}
 
 Vorteilhaft dabei, die \textit{Holdback Queue} nicht als \textit{Priority Queue} umzusetzen ist, dass die Sortierung von \textit{concurrent} Vektoruhren nicht beachtet werden muss. Außerdem ist die Implementierung schneller umzusetzen.\\
-In der Effizienz beider Möglichkeiten ist kein wesentlicher Unterschied zu erkennen. Die \textit{Priority Queue} kann abhängig vom gewählten Sortieralgorithmus (siehe Abb. \ref{fig:sortAlgo}) eine minimale Komplexität von $O(n)$ erreichen. Dies wäre mit dem Heap Sort Algorithmus möglich - $O(n*log(n))$ bezieht sich hierbei auf eine nicht vorsortierte Liste. Nachrichten, welche auf Auslieferbarkeit geprüft werden müssen, würden nun am Ende der Queue stehen.\\
-Wenn Nachrichten direkt an den Anfang der Queue einsortiert werden ensteht dadurch eine Komplexität von $O(1)$. Allerdings wird bei der Prüfung auf Auslieferbarkeit nun über die gesamte Queue iteriert, was eine zusätzliche Komplexität von $O(n)$ zur Folge hat. Beide Möglichkeiten haben also eine Komplexität von $O(n)$.
+In der Effizienz beider Möglichkeiten ist ein geringer Unterschied zu erkennen. Die \textit{Priority Queue} kann abhängig vom gewählten Sortieralgorithmus (siehe Abb. \ref{fig:sortAlgo}) eine minimale Komplexität von $O(n)$ erreichen. Wenn Nachrichten direkt an den Anfang der Queue einsortiert werden entsteht dadurch eine Komplexität von $O(1)$. Allerdings wird bei der Prüfung auf Auslieferbarkeit nun über die gesamte Queue iteriert, was eine zusätzliche Komplexität von mindestens $O(n)$ zur Folge hat. Beide Möglichkeiten haben also eine Komplexität von $O(n)$. Abhängig von der Implementierung ist die \textit{Priority Queue} leicht effizienter. 
 
 \begin{figure}[htbp]
 \begin{center}

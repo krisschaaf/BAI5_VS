@@ -2,7 +2,7 @@
 
 \subsection{Korrektheitsbeweis}
 
-\subsubsection{Betrachtung des Algorithmus}
+\subsubsection{Betrachtung des Algorithmus} \label{algo_analyse}
 
 In Abb. \ref{definition_kausal} ist der Algorithmus für einen kausalen Multicast beschrieben.
 
@@ -25,8 +25,6 @@ Aus diesem gehen die folgenden wesentlichen Merkmale hervor:
         \end{enumerate}
     \item Synchronisiere den lokalen Zeitstempel des Prozesses beim Ausliefern einer Nachricht mit dem der ausgelieferten Nachricht.
 \end{itemize}
-
-
 
 \paragraph{Initialisierung mit Nullvektor}
 
@@ -64,14 +62,26 @@ In der Aufgabenstellung sind drei Tests aufgeführt, welche die Kausalität des 
 \end{center}
 \end{figure}
 
+\subsubsection{Nebenläufigkeit}
+
+In Kapitel \ref{algo_analyse} wurde bewiesen, dass die kausale Reihenfolge eingehalten wurde. Anhand der Tests in Abb. \ref{test1_2} kann nun die Nebenläufigkeit demonstriert werden. Im linken Test \textit{'lokal Kausal und Nebenläufig'} werden die Nachrichten F1 und F2 nebenläufig zueinander von zwei verschiedenen Prozessen aus gesendet. Kausal abhängig ist hier nur die Nachricht F2 von F1. F2 wird es verschickt, wenn F1 verschickt wurde. In Prozess B ist also wichtig, dass F1 vor F2 ausgeliefert wird. Wann genau F3 ausgeliefert wird ist nicht weiter relevant.
+
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[scale=0.2]{Latex/Bilder/Test3.png}
-\caption{\label{test3} Kausalitätstest 3 \cite{Aufgabenstellung}}
+\includegraphics[scale=0.2]{Latex/Bilder/test1_1_results.png}
+\caption{\label{test1_2_result} Ergebnisse 3}
 \end{center}
 \end{figure}
 
-\subsubsection{}
+In Abb. \ref{test1_2_result} sind die logs des Tests zu sehen. Die Nachrichten kommen in folgender Reihenfolge bei den jeweiligen Prozessen an:
+
+\begin{itemize}
+	\item \textbf{Prozess A}  $F1 \rightarrow F3 \rightarrow F2$
+	\item \textbf{Prozess B} $F3 \rightarrow F1 \rightarrow F2$
+	\item \textbf{Prozess C} $F3 \rightarrow F1 \rightarrow F2$
+\end{itemize}
+
+$F1 < F2$ ist bei allen Prozessen eingehalten. F3 ist bei Prozess A und bei Prozess B an unterschiedlichen Stellen. Dies zeigt also sowohl das Einhalten der kausalen Ordnung, als auch die Nebenläufigkeit.
 
 \subsection{Komplexitätsanalyse}
 

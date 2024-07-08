@@ -25,6 +25,10 @@ stop(PID) ->
             exit(whereis(PID), ok)
     end.
 
+
+% -------------------------------------- Prozesse --------------------------------------
+
+
 loop(Datei, Map) ->
     receive
         % {getVecID,<PID>}: als Nachricht, wobei <PID> die Antwortadresse ist. 
@@ -48,6 +52,10 @@ loop(Datei, Map) ->
             util:logging(Datei, "Unknown message: "++util:to_String(Any)++"\n"),
             loop(Datei, Map)
     end.
+
+
+% -------------------------------------- Hilfsfunktionen --------------------------------------
+
 
 map([], _PID) ->
     undefined;
