@@ -6,7 +6,14 @@ Zu Beginn der Ausarbeitung waren viele Fragen offen. Als Gruppe haben wir die Vi
 Nachdem eine erste Idee entstanden ist, hat das Entwerfen verschiedener Ablauf- und Sequenzdiagramme vieles erleichtert. Parallel wurde in Einzelarbeit der Entwurf geschrieben und der Code implementiert. Die Realisierung ist nachträglich aufgearbeitet worden.\\
 Während des gesamten Prozesses wurden immer mehr Fragen geklärt, wodurch das Schreiben der Analyse und die Implementierung der Anwendung vergleichsweise wenig Zeit gekostet haben.
 
-\subsection{Bewertung des Algorithmus mit Hilfe der Anwendung}
+\subsubsection{Erlang}
+
+Die Programmiersprache \textit{Erlang} hat sich für diese spezifische Aufgabenstellung als sehr geeignet herausgestellt. Das Pattern Matching und die Guards ersparen tief verschachtelten Code. Hier hätte ich mir dennoch gewünscht, dass das Nutzen eigener Guards, wie zum Beispiel \textit{vectorC:isVT/1} möglich gewesen wäre. Auch, dass bei mehreren \textit{if} und \textit{switch} Statements hintereinander geschaltet werden müsst, trägt nicht zu einer besseren Lesbarkeit des Codes bei.\\
+Die Möglichkeiten von \textit{Erlang} auf verschiedenen Nodes zu arbeiten und ein verteiltes System mit vielen Nebenläufigkeiten zu simulieren ist für mich bisher einzigartig gewesen und hat mich positiv überrascht.\\
+Das Arbeiten mit einer funktionalen Programmiersprache bietet aus meiner Sicht viele Vorteile, gerade beim Debuggen. Bis auf die Prozessvariablen gibt es keine versteckten Zustände und auch keine falschen Referenzen.\\
+Im direkten Vergleich ist eine Java Anwendung bei asynchronen Threads quasi nur über \textit{prints} zu debuggen. Der \textit{Erlang}-Debugger, welcher für jeden Node einzeln gestartet werden kann, hat teilweise Probleme mit den \textit{receive} Timeouts, löst aber das Problem der Java Anwendung.
+
+\subsection{Bewertung des Algorithmus anhand der Anwendung}
 
 Die Anwendung simuliert folgendes Verhalten:
 
@@ -17,10 +24,22 @@ Die Anwendung simuliert folgendes Verhalten:
     \item Der dritte Prozess liefert die Nachrichten in korrekter Reihenfolge nach kausaler Ordnung aus
 \end{enumerate}
 
-Dieser Ablauf kann zum Beispiel mit dem Verschicken mehrerer Mails von zwei verschiedenen Usern an einen dritten User verglichen werden. Die Reihenfolge der Mails betrachtet pro Sender wird weiterhin eingehalten. Auch wenn vom Email-Provider Nachrichten vertauscht werden, durch zum Beispiel einen internen Fehler oder einen Angriff von außen.\\
+Dieser Ablauf kann zum Beispiel mit dem Verschicken mehrerer Mails von zwei verschiedenen Usern an einen dritten User verglichen werden. Die Reihenfolge der Mails, betrachtet pro Sender, wird weiterhin eingehalten. Auch wenn vom Email-Provider Nachrichten vertauscht werden, durch zum Beispiel einen internen Fehler oder einen Angriff von außen.\\
 
 Vor allem die Robustheit des Algorithmus wird durch die Anwendung bewiesen. Trotz der zusätzlichen Vertauschung der Nachrichten bleibt die kausale Ordnung bestehen.\\
 Der \textit{CBCAST}-Algorithmus ist also eine effiziente und mittelschwer implementierbare Lösung zum Verschicken von Nachrichten, wenn die kausale Ordnung bewahrt werden muss. Wichtig ist hierbei, dass nur die kausale und nicht die totale Ordnung bestehen bleibt. Durch das Nutzen der logischen Vektoruhren ist sichergestellt, dass die einzelnen Teilnehmer nicht auf Systemzeiten angewiesen sind.\\
 
-% TODO backdating Attacken 
-Anfällig ist der Algorithmus allerdings für sogenannte \textit{backdating} und \textit{forthdating} Attacken. Diese täuschen Nachrichten mit falschen Vektoruhren vor, wodurch andere Nachrichten verloren gehen können. Mit einer sicheren Firewall und anderen Schutzmechanismen sind diese Attacken aber abzuhalten. Das System ist dadurch also genau so sicher, wie die meisten anderen Systeme auch.
+\subsection{Schwächen des Algorithmus}
+
+\subsubsection{\textit{back-} und \textit{postdating}}
+
+Der Algorithmus ist anfällig für sogenannte \textit{backdating} und \textit{postdating} Attacken (siehe \cite{backdating}). Eine Nachricht ist \textit{backdated}, wenn eine Nachricht m’ kausal nach einer Nachricht m liegt, das aber auf einem anderen Node anders herum der Fall ist. Dieser Ansatz bietet die Möglichkeit einen Angriff von außen zu simulieren und das System zu blockieren. Mit einer sicheren Firewall und anderen Schutzmechanismen sind diese Attacken aber abzuhalten. Das System ist dadurch also genau so sicher, wie die meisten anderen Systeme auch.
+
+\subsubsection{Skalierbarkeit}
+
+CBCAST kann in kleineren Systemen gut funktionieren. In sehr großen verteilten Systemen wiederum kann es schwierig sein, die Effizienz und Leistung aufrechtzuerhalten. Die Komplexität der Nachrichtenverwaltung und der Speicherbedarf steigen abhängig von der Anzahl der beteiligten Prozesse (siehe \cite{scalability}).\\
+Für folgende Arbeiten wäre die Skalierung der Prozesse ein interessanter Ansatz das implementierte System wiederzuverwenden.
+
+\subsubsection{Latenz}
+
+Alle Prozesse müssen sicherzustellen, dass sie alle abhängigen Ereignisse in der richtigen Reihenfolge  empfangen und verarbeiten. Dafür müssen sie möglicherweise warten, bis sie alle benötigten Informationen erhalten haben. Dies kann die Latenz erhöhen, besonders in Netzwerken mit hoher Latenz oder unzuverlässigen Verbindungen.

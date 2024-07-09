@@ -4,7 +4,7 @@
 
 \subsubsection{Timeouts}
 
-In der Implementierung ist für jeden \textit{receive} Block ein \textit{Timeout} eingebaut. Dieser beträgt 1000ms. Wird der Timeout ausgelöst, wird eine für jeden Fall individuelle Fehlermeldung geloggt.
+In der Implementierung ist, bis auf Ausnahmen, für jeden \textit{receive} Block ein \textit{Timeout} eingebaut. Dieser beträgt 1000ms. Wird der Timeout ausgelöst, wird eine für jeden Fall individuelle Fehlermeldung geloggt.
 
 \subsubsection{Responses}
 
@@ -60,12 +60,12 @@ loopQueues(Datei, VT, HBQ, DLQ) ->
     end.
 \end{lstlisting}
 
-Der Prozess speichert die Datei, in welcher geloggt wird als Zeichenkette, den Vektorzeitstempel in der in Kapitel \ref{vectorC_realisierung} festgelegten Datenstruktur und die \textit{Holdback} und die \textit{Delivery} Queue jeweils als Liste. Während \textit{listQueues} nur eine convenience Schnittstelle ist, welche ausschließlich zum Debuggen genutzt wird, haben alle anderen Schnittstellen eine wichtige Funktionalität: 
+Der Prozess speichert die Datei, in welcher geloggt wird als Zeichenkette, den Vektorzeitstempel in der in Kapitel \ref{vectorC_realisierung} festgelegten Datenstruktur und die \textit{Holdback} und \textit{Delivery} Queue jeweils als Liste. Während \textit{listQueues} nur eine convenience Schnittstelle ist, welche ausschließlich zum Debuggen genutzt wird, haben alle anderen Schnittstellen eine wichtige Funktionalität: 
 \begin{itemize}
     \item \textit{pushHBQ} und \textit{pushDLQ} fügen Nachrichten der jeweiligen \textit{Queue} hinzu
     \item \textit{popDLQ} entfernt eine Nachricht nach dem FiFo Prinzip aus der \textit{Delivery Queue}
     \item \textit{checkQueues} (siehe Abb. \ref{fig:flow_checkQueues}) prüft ob in der \textit{Holdback Queue} auslieferbare Nachrichten enthalten sind und sortiert diese entsprechend in die \textit{Delivery Queue}
-    \item \textit{syncVT} synchronisiert die im Prozess gespeicherte Vektoruhr mit einer mitgelieferten
+    \item \textit{syncVT} synchronisiert die im Prozess gespeicherte Vektoruhr mit einer als Parameter mitgelieferten Vektoruhr
     \item \textit{tickVT} erhöht die im Prozess gespeicherte Vektoruhr um 1
     \item \textit{getVTid} gibt die eigene Identität der im Prozess gespeicherten Vektoruhr zurück. 
 \end{itemize}
@@ -106,7 +106,7 @@ Versendet wird eine Nachricht indem diese an den \textit{Prozess der Kommunikati
 
 \subsubsection{read/1 \& received/1} \label{cbcast_read_received_realisierung}
 
-Um eine Nachricht auszuliefern wird auch hier der \textit{Prozess der Kommunikationseinheit} (\textit{cbCast Prozess}) angesprochen. Beide Arten der Auslieferung schicken an die gleiche Schnittstelle. Die fragt dann über den mitgeschickten Parameter \textit{Blocking} ab ob blockierend oder nicht blockierend ausgeliefert werden soll.
+Um eine Nachricht auszuliefern wird auch hier der \textit{Prozess der Kommunikationseinheit} (\textit{cbCast Prozess}) angesprochen. Beide Arten der Auslieferung schicken an die gleiche Schnittstelle. Diese fragt dann über den mitgeschickten Parameter \textit{Blocking} ab ob blockierend oder nicht blockierend ausgeliefert werden soll.
 
 \paragraph{read/1 (nicht blockierend)}
 
@@ -143,7 +143,7 @@ Die Schnittstelle \textit{castMessage} (siehe Abb. \ref{fig:sequence_cast_realis
 
 \subsection{Vektoruhr-ADT} \label{vectorC_realisierung}
 
-Die bereits in Kapitel \ref{vectorC_entwurf} beschriebene Datenstruktur ist ein \textit{erlang} Tupel bestehend aus der Vektoruhr Identität als Integer und der Vektoruhr als \textit{erlang} Liste. Ein Beispiel $\{2, [1,3,4,2]\}$. Die Vektoruhr Identität ist $2$ und die Vektoruhr ist $[1,3,4,2]$. Die Identitäten beginnen bei 1. Somit ist die eigene Identität dieser ADT $3$.
+Die bereits in Kapitel \ref{vectorC_entwurf} beschriebene Datenstruktur ist ein \textit{erlang} Tupel bestehend aus der Vektoruhr Identität als Integer und der Vektoruhr als \textit{erlang} Liste. In der Vektoruhr sind alle Zeitstempel der verschieden \textit{Prozesse der Kommunikationseinheiten}, inklusive dem Eigenen, gespeichert. Als Beispiel: $\{2, [1,3,4,2]\}$. Die Vektoruhr Identität ist $2$ und die Vektoruhr ist $[1,3,4,2]$. Die Identitäten beginnen bei 1. Somit ist der eigene Zeitstempel dieser ADT $3$.
 
 \begin{lstlisting}
 VT = {2, [1,3,4,2]}.
@@ -219,7 +219,7 @@ Die Funktion \textit{aftereqVTJ/2} (siehe Abb. \ref{fig:flow_aftereqvtj_realisie
 
 \subsubsection{init/1}
 
-Wie bereits in Kapitel \ref{towercbc_init_entwurf} beschrieben, kann der \textit{Tower} in zwei verschiedenen Modi gestartet werden. Diese werden dem Prozess als boolean übergeben. Der Prozess wird im folgenden als der \textit{Prozess des TowerCBCs} bezeichnet. Wird als Parameter \textit{auto} übergeben, wird die Variable \textit{Auto} auf true gesetzt. Für den Parameter \textit{manu} wird \textit{Auto} als false gespeichert. In der Variable \textit{Registered} werden alle registrierten \textit{Prozesse der Kommunikationseinheiten} gespeichert. Die Variable ist eine Liste nach dem FiFo Prinzip. Dies wird in Kapitel \ref{towercbc_register_realisierung} genauer beschrieben. Auch die letzte Variable \textit{Buffer} ist eine Liste nach dem FiFo Prinzip. In dieser Liste werden alle Nachrichten welche über die Schnittstelle, beschrieben in Kapitel \ref{towercbc_nb_realisierung}, empfangen werden, gespeichert.
+Wie bereits in Kapitel \ref{towercbc_init_entwurf} beschrieben, kann der \textit{Tower} in zwei verschiedenen Modi gestartet werden. Diese werden dem Prozess in der Booleschen Variable \textit{Auto} übergeben. Der Prozess wird im folgenden als der \textit{Prozess des TowerCBCs} bezeichnet. Wird als Parameter \textit{auto} übergeben, wird die Variable \textit{Auto} auf true gesetzt. Für den Parameter \textit{manu} wird \textit{Auto} als false gespeichert. In der Variable \textit{Registered} werden alle registrierten \textit{Prozesse der Kommunikationseinheiten} gespeichert. Die Variable ist eine Liste nach dem FiFo Prinzip. Dies wird in Kapitel \ref{towercbc_register_realisierung} genauer beschrieben. Auch die letzte Variable \textit{Buffer} ist eine Liste nach dem FiFo Prinzip. In dieser Liste werden alle Nachrichten welche über die Schnittstelle $\{\langle PID\rangle,\{multicastNB,\{\langle Message\rangle,\langle VT\rangle\}\}\}$, beschrieben in Kapitel \ref{towercbc_nb_realisierung}, empfangen werden, gespeichert.
 
 \begin{lstlisting}
 loop(Datei, Registered, Auto, Buffer) ->
@@ -230,7 +230,7 @@ loop(Datei, Registered, Auto, Buffer) ->
 
 \subsubsection{stop/1}
 
-Das Stoppen des Prozesses funktioniert wie in Kapitel \ref{cbcast_stop_realisierung}.
+Das Stoppen dieses Prozesses ist identisch zu Kapitel \ref{cbcast_stop_realisierung} umgesetzt.
 
 \subsubsection{listall/0}
 
@@ -242,7 +242,7 @@ Als Parameter empfängt diese Funktion zwei Integer, welche zuerst auf den richt
 
 \subsubsection{$\{\langle PID \rangle,\{register,\langle RPID\rangle\}\}$} \label{towercbc_register_realisierung}
 
-Beim Senden an diese Schnittstelle wird über die Hilfsfunktion \textit{isListMember/2} geprüft ob die mitgeschickte Prozess ID \textit{RPID} bereits in der Liste \textit{Registered} enthalten ist. Ist dies der Fall, ist die Antwort an den Sender der Nachricht $\{replycbc, ok_existing\}$. Wenn nicht, dann wird die Prozess ID der Liste hinzugefügt und die Antwort ist $\{replycbc, ok_registered\}$.
+Beim Senden an diese Schnittstelle wird über die Hilfsfunktion \textit{isListMember/2} geprüft ob die mitgeschickte Prozess ID \textit{RPID} bereits in der Liste \textit{Registered} enthalten ist. Ist dies der Fall, ist die Antwort an den Sender der Nachricht $\{replycbc, ok\_existing\}$. Wenn nicht, dann wird die Prozess ID der Liste hinzugefügt und die Antwort ist $\{replycbc, ok\_registered\}$.
 
 \subsubsection{$\{\langle PID\rangle,\{multicastB,\{\langle Message\rangle,\langle VT\rangle\}\}\}$} \label{towercbc_b_realisierung}
 
@@ -250,12 +250,12 @@ Auch bei dieser Schnittstelle wird die Hilfsfunktion \textit{isListMember/2} gen
 
 \subsubsection{$\{\langle PID\rangle,\{multicastNB,\{\langle Message\rangle,\langle VT\rangle\}\}\}$} \label{towercbc_nb_realisierung}
 
-Wie bereits in Kapitel \ref{towercbc_init_entwurf} beschrieben, ist diese Schnittstelle nur im \textit{manu} Modus möglich. Die Variable \textit{Auto} muss also false sein. Ähnlich zur vorherigen Schnittstelle (siehe Kapitel \ref{towercbc_b_realisierung}) wird in dieser zuerst der Sender der Nachricht überprüft. Ist dieser Registriert und ist die mitgeschickte Vektoruhr validiert wird die Nachricht an die im \textit{Prozess des TowerCBCs} gespeicherte Liste \textit{Buffer} angehängt.
+Wie bereits in Kapitel \ref{towercbc_init_entwurf} beschrieben, ist diese Schnittstelle nur im \textit{manu} Modus möglich. Die Variable \textit{Auto} muss also auf \textit{false} gesetzt sein. Ähnlich zur vorherigen Schnittstelle (siehe Kapitel \ref{towercbc_b_realisierung}) wird in dieser zuerst der Sender der Nachricht überprüft. Ist dieser Registriert und ist die mitgeschickte Vektoruhr validiert wird die Nachricht an die im \textit{Prozess des TowerCBCs} gespeicherte Liste \textit{Buffer} angehängt.
 
 \subsubsection{$\{\langle PID\rangle,\{multicastM,\langle CommNR\rangle,\langle MessageNR\rangle\}\}$} \label{towercbc_m_realisierung}
 
 Die letzte Schnittstelle wird über \textit{cbcast/2} aufgerufen. Diese Funktion überprüft bereits ob die beiden Indizes \textit{CommNR} und \textit{MessageNR} größer 0 sind. Um Angriffe von außen zu vermeiden, wird diese Prüfung erneut vorgenommen. Zusätzlich kann nun geprüft werden, dass die beiden Indizes nicht größer als die Länge der jeweilig zugehörigen Liste sind. Über die Hilfsfunktion \textit{getElementByIndex/2} werden der entsprechende \textit{Prozess der Kommunikationseinheit} und die entsprechende Nachricht ermittelt. Über einen Guard und Pattern Matching kann in einer Zeile überprüft werden, dass die gefundenen Elemente dem korrekten Datentypen entsprechen (siehe Listing \ref{towercbc_m_realisierung_code} Zeile 4).
-Ist der Test erfolgreich wird die Nachricht an den Empfänger geschickt und mit $\{replycbc, ok_send\}$ geantwortet. Schlägt der Test fehlt wird mit $\{replycbc, error_send\}$ geantwortet.
+Ist der Test erfolgreich wird die Nachricht an den Empfänger geschickt und mit $\{replycbc, ok\_send\}$ geantwortet. Schlägt der Test fehlt wird mit $\{replycbc, error\_send\}$ geantwortet.
 
 \begin{lstlisting}[caption={Codeausschnitt multicastM},captionpos=b, label={towercbc_m_realisierung_code}]
 Comm = getElementByIndex(Registered, CommNR - 1), % Receiver Index beginnt bei 0
@@ -291,7 +291,7 @@ loop(Datei, Map) ->
     end.
 \end{lstlisting}
 
-Gespeichert wird einmal die in die zu loggende Datei und eine Map. Die Map ist als Liste implementiert, welche Objekte enthält. Diese haben alle ein Key Value Paar. Die Keys sind Prozess IDs, die Values sind Integer.
+Gespeichert wird einmal die in die zu loggende Datei und eine Map. Die Map ist als Liste implementiert, welche Objekte aus Key Value Paaren enthalten. Die Keys sind Prozess IDs, die Values sind Integer.
 
 \subsubsection{stop/1}
 

@@ -28,7 +28,7 @@ Aus diesem gehen die folgenden wesentlichen Merkmale hervor:
 
 \paragraph{Initialisierung mit Nullvektor}
 
-Die Eindeutigkeit jedes Prozesses wird über die Vektoruhr Zentrale kontrolliert. Durch das mapping der Prozess ID auf die Vektoruhr ID hat jeder Prozess eine eindeutige Vektoruhr ID. Die Nullvektoren haben entsprechend alle eine unterschiedliche Länge und sind ausschließlich mit Nullen gefüllt.
+Die Eindeutigkeit jedes Prozesses wird über die Vektoruhr Zentrale kontrolliert. Durch das Mapping der Prozess ID auf die Vektoruhr ID hat jeder Prozess eine eindeutige Vektoruhr ID. Die Nullvektoren haben entsprechend alle eine unterschiedliche Länge und sind ausschließlich mit Nullen gefüllt.
 
 \paragraph{Inkrementierung beim Versenden}
 
@@ -49,31 +49,29 @@ Die Kausalität bleibt durch die Implementierung der \textit{Delivery Queue} als
 
 \paragraph{Synchronisierung beim Ausliefern}
 
-Auch die Synchronisierung der Vektoruhr des \textit{Prozesses der Kommunikationseinheit} mit der Vektoruhr einer ausgelieferten Nachricht ist in dem \textit{Prozess der Queues} implementiert. Diese Schnittstelle wird ausschließlich in der \textit{receive}-Schnittstelle der \textit{read}, bzw. \textit{received} Funktion (siehe Kapitel \ref{cbcast_read_received_realisierung}) aufgerufen. Sowohl \textit{read} als auch \textit{received} greifen auf diese \textit{receive}-Schnittstelle. Eine andere Möglichkeit als über eine diese beiden Funktionen Nachrichten auszuliefern ist nicht implementiert.
+Auch die Synchronisierung der Vektoruhr des \textit{Prozesses der Kommunikationseinheit} mit der Vektoruhr einer ausgelieferten Nachricht ist in dem \textit{Prozess der Queues} implementiert. Diese Schnittstelle wird ausschließlich in der \textit{receive}-Schnittstelle der \textit{read}, bzw. \textit{received} Funktion (siehe Kapitel \ref{cbcast_read_received_realisierung}) aufgerufen. Sowohl \textit{read} als auch \textit{received} greifen auf diese \textit{receive}-Schnittstelle zu. Eine andere Möglichkeit als über eine diese beiden Funktionen Nachrichten auszuliefern ist nicht implementiert.
 
-\subsubsection{Tests aus der Aufgabe}
+\subsubsection{Nebenläufigkeit}
 
-In der Aufgabenstellung sind drei Tests aufgeführt, welche die Kausalität des Algorithmus testen. Anhand der geloggten Ergebnisse nach Ausführung der \textit{testCBC:test()} Funktion auf dem Node des \textit{Towers} kann die Korrektheit bewiesen werden. Relevant sind hierbei vorallem die log-Dateien der \textit{Prozesse der Kommunikationseinheiten} und die log-Datei des Tests \textit{testCBC*.log}. 
+In der Aufgabenstellung sind drei Tests aufgeführt, welche die Kausalität des Algorithmus testen. Anhand der geloggten Ergebnisse nach Ausführung der \textit{testCBC:test()} Funktion auf dem Node des \textit{Towers} und anhand der Tests in Abb. \ref{test1_2} kann nun die Nebenläufigkeit demonstriert werden. Relevant sind hierbei vor allem die log-Dateien der \textit{Prozesse der Kommunikationseinheiten} und die log-Datei des Tests \textit{testCBC*.log}. 
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[scale=0.2]{Latex/Bilder/Test1_2.png}
+\includegraphics[scale=0.25]{Latex/Bilder/Test1_2.png}
 \caption{\label{test1_2} Kausalitätstest 1 und 2 \cite{Aufgabenstellung}}
 \end{center}
 \end{figure}
 
-\subsubsection{Nebenläufigkeit}
-
-In Kapitel \ref{algo_analyse} wurde bewiesen, dass die kausale Reihenfolge eingehalten wurde. Anhand der Tests in Abb. \ref{test1_2} kann nun die Nebenläufigkeit demonstriert werden. Im linken Test \textit{'lokal Kausal und Nebenläufig'} werden die Nachrichten F1 und F2 nebenläufig zueinander von zwei verschiedenen Prozessen aus gesendet. Kausal abhängig ist hier nur die Nachricht F2 von F1. F2 wird es verschickt, wenn F1 verschickt wurde. In Prozess B ist also wichtig, dass F1 vor F2 ausgeliefert wird. Wann genau F3 ausgeliefert wird ist nicht weiter relevant.
+Im linken Test \textit{'lokal Kausal und Nebenläufig'} werden die Nachrichten F1 und F2 nebenläufig zueinander von zwei verschiedenen Prozessen aus gesendet. Kausal abhängig ist hier nur die Nachricht F2 von F1. F2 wird erst verschickt, wenn F1 verschickt wurde. In Prozess B ist also wichtig, dass F1 vor F2 ausgeliefert wird. Wann genau F3 ausgeliefert wird ist nicht weiter relevant.
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[scale=0.5]{Latex/Bilder/test1_1_results.png}
+\includegraphics[scale=0.55]{Latex/Bilder/test1_1_results.png}
 \caption{\label{test1_2_result} Ergebnisse 3}
 \end{center}
 \end{figure}
 
-In Abb. \ref{test1_2_result} sind die logs des Tests zu sehen. Die Nachrichten kommen in folgender Reihenfolge bei den jeweiligen Prozessen an:
+In Abb. \ref{test1_2_result} sind die Logs des Tests zu sehen. Die Nachrichten kommen in folgender Reihenfolge bei den jeweiligen Prozessen an:
 
 \begin{itemize}
 	\item \textbf{Prozess A}  $F1 \rightarrow F3 \rightarrow F2$
@@ -81,7 +79,7 @@ In Abb. \ref{test1_2_result} sind die logs des Tests zu sehen. Die Nachrichten k
 	\item \textbf{Prozess C} $F3 \rightarrow F1 \rightarrow F2$
 \end{itemize}
 
-$F1 < F2$ ist bei allen Prozessen eingehalten. F3 ist bei Prozess A und bei Prozess B an unterschiedlichen Stellen. Dies zeigt also sowohl das Einhalten der kausalen Ordnung, als auch die Nebenläufigkeit.
+$F1 < F2$ ist bei allen Prozessen eingehalten. F3 ist bei Prozess A und bei Prozess B an unterschiedlichen Stellen. Dies zeigt sowohl das Einhalten der kausalen Ordnung, als auch die Nebenläufigkeit.
 
 \subsection{Komplexitätsanalyse}
 
@@ -104,12 +102,12 @@ Die beiden komplexeren Funktionen dieses Moduls sind \textit{compVT/2} und \text
 \paragraph{\textit{compVT/2}}
 
 Die genutzte Hilfsfunktion \textit{padWithZeros/2} hat eine Komplexität von $O(m)$. $m$ ist die Länge des resultierenden Vektors.\\
-Die zweite genutzte Hilfsfunktion ist \textit{compareLists/2}. Es werden zwei Listen elementweise verglichen, wodurch eine Komplexität von $O(n)$ resultiert. $n$ ist die Länge der Vektoren, welche durch das padding die gleiche Länge haben.\\
+Die zweite genutzte Hilfsfunktion ist \textit{compareLists/2}. Es werden zwei Listen elementweise verglichen, wodurch eine Komplexität von $O(n)$ resultiert. $n$ ist die Länge der Vektoren, welche durch das Padding die gleiche Länge haben.\\
 Die Gesamtkomplexität dieser Funktion ist also $O(m+n)$. $m$ und $n$ sind die Längen der beiden übergebenen Vektoren.
 
 \paragraph{aftereqVTJ/2} \label{aftereqVTJ_complexity}
 
-Die erste genutzte Hilfsfunktion ist \textit{removeJ/2}. Diese nutzt die im vergehenden Kapitel beschriebene Hilfsfunktion \textit{padWithZeros/2}. Danach wird durch eine Liste iteriert ($O(n)$) und an einen Akkumulator angehängt, was zu $O(k)$ führt. $k$ ist die Länge des Akkumulators. Es folgt eine Komplexität von $O(n)+O(n)+O(n^2)+O(n^2)=O(n^2)$.\\
+Die erste genutzte Hilfsfunktion ist \textit{removeJ/2}. Diese nutzt die im vorgehenden Paragraphen beschriebene Hilfsfunktion \textit{padWithZeros/2}. Danach wird durch eine Liste iteriert ($O(n)$) und an einen Akkumulator angehängt, was zu $O(k)$ führt. $k$ ist die Länge des Akkumulators. Es folgt eine Komplexität von $O(n)+O(n)+O(n^2)+O(n^2)=O(n^2)$.\\
 Die zweite genutzte Funktion ist \textit{compVT/2}. Wie auch im vorherigen Paragraphen beschrieben ist dessen Komplexität $O(m+n)$, bzw. $O(n)$, da die beiden übergebenen Vektoren die gleiche Länge haben.\\
 Es ergibt sich eine Gesamtkomplexität von $O(n^2)+O(n)=O(n^2).$
 

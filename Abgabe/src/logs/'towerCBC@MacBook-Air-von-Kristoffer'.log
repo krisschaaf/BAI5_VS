@@ -1,0 +1,70 @@
+TowerCBC initialized with Mode: manu and PID: <0.110.0> on Node 'towerCBC@MacBook-Air-von-Kristoffer'
+registered <10505.116.0>
+registered <10506.116.0>
+registered <10507.114.0>
+multicastNB: "beige" with VT: {1,[1]} by: <10505.116.0>
+multicastNB: "gruen" with VT: {3,[0,0,1]} by: <10507.114.0>
+multicastNB: "lila" with VT: {1,[2]} by: <10505.116.0>
+{"lila",{1,[2]}}
+Send "lila" to 1
+{"gruen",{3,[0,0,1]}}
+Send "gruen" to 2
+{"beige",{1,[1]}}
+Send "beige" to 3
+{"gruen",{3,[0,0,1]}}
+Send "gruen" to 3
+{"lila",{1,[2]}}
+Send "lila" to 3
+{"beige",{1,[1]}}
+Send "beige" to 1
+{"lila",{1,[2]}}
+Send "lila" to 2
+{"gruen",{3,[0,0,1]}}
+Send "gruen" to 1
+{"beige",{1,[1]}}
+Send "beige" to 2
+multicastNB: "beigeK1" with VT: {1,[3,0,1]} by: <10505.116.0>
+{"beigeK1",{1,[3,0,1]}}
+Send "beigeK1" to 1
+{"beigeK1",{1,[3,0,1]}}
+Send "beigeK1" to 3
+multicastNB: "gruenK1" with VT: {3,[3,0,2]} by: <10507.114.0>
+multicastNB: "lilaK1" with VT: {1,[4,0,1]} by: <10505.116.0>
+{"lilaK1",{1,[4,0,1]}}
+Send "lilaK1" to 1
+{"lilaK1",{1,[4,0,1]}}
+Send "lilaK1" to 2
+{"lilaK1",{1,[4,0,1]}}
+Send "lilaK1" to 3
+{"gruenK1",{3,[3,0,2]}}
+Send "gruenK1" to 1
+{"gruenK1",{3,[3,0,2]}}
+Send "gruenK1" to 2
+{"beigeK1",{1,[3,0,1]}}
+Send "beigeK1" to 2
+{"gruenK1",{3,[3,0,2]}}
+Send "gruenK1" to 3
+multicastNB: "beigeK2" with VT: {1,[5,0,2]} by: <10505.116.0>
+{"beigeK2",{1,[5,0,2]}}
+Send "beigeK2" to 1
+{"beigeK2",{1,[5,0,2]}}
+Send "beigeK2" to 3
+multicastNB: "gruenK2" with VT: {3,[5,0,3]} by: <10507.114.0>
+{"gruenK2",{3,[5,0,3]}}
+Send "gruenK2" to 1
+multicastNB: "lilaK2" with VT: {1,[6,0,3]} by: <10505.116.0>
+{"lilaK2",{1,[6,0,3]}}
+Send "lilaK2" to 1
+{"lilaK2",{1,[6,0,3]}}
+Send "lilaK2" to 2
+{"gruenK2",{3,[5,0,3]}}
+Send "gruenK2" to 2
+{"beigeK2",{1,[5,0,2]}}
+Send "beigeK2" to 2
+{"lilaK2",{1,[6,0,3]}}
+Send "lilaK2" to 3
+{"gruenK2",{3,[5,0,3]}}
+Send "gruenK2" to 3
+multicastNB: "krimsKrams" with VT: {3,[6,0,4]} by: <10507.114.0>
+{"krimsKrams",{3,[6,0,4]}}
+Send "krimsKrams" to 2

@@ -1,0 +1,135 @@
+TowerCBC towerKLCcbc integrated via ping by Server 'towerCBC@MacBook-Air-von-Kristoffer'
+cbCast registered at towerKLCcbc with PID: <0.114.0> on Node 'botC@MacBook-Air-von-Kristoffer'
+TowerClock vtKLCclockC integrated via ping by Server 'towerClock@MacBook-Air-von-Kristoffer'
+VecID received: 3
+VT {3,[0,0,0]} ticked to {3,[0,0,1]}
+Message "gruen" with VT {3,[0,0,1]} sent from {commbot,'botC@MacBook-Air-von-Kristoffer'}
+Message: "gruen" with Timestamp: {3,[0,0,1]} pushed to DLQ.
+Queues>>> Queues checked with VT {3,[0,0,1]} (HBQ empty).
+DLQ>>> Current Size 1.
+Queues checked.
+Message: "beige" with Timestamp: {1,[1]} received.
+Message: "beige" with Timestamp: {1,[1]} pushed to HBQ.
+VT is after VTR with Distance -1.
+Queues>>> removed {"beige",{1,[1]}} from HBQ and added to DLQ (aftereqVTJ, -1).
+Queues>>> Queues checked with VT {3,[0,0,1]} (HBQ empty).
+DLQ>>> Current Size 2.
+Queues checked.
+Message: "gruen" with Timestamp: {3,[0,0,1]} discarded.
+Message: "lila" with Timestamp: {1,[2]} received.
+Message: "lila" with Timestamp: {1,[2]} pushed to HBQ.
+VT is after VTR with Distance -2.
+Queues>>> Queues checked with VT {3,[0,0,1]}.
+HBQ>>> Current Size 1.
+DLQ>>> Current Size 2.
+Queues checked.
+Message: {"gruen",{3,[0,0,1]}} popped from DLQ.
+Message: "gruen" with Timestamp: {3,[0,0,1]} read.
+Comm VT {3,[0,0,1]} synchronized with {3,[0,0,1]} is now {3,[0,0,1]}.
+VT is after VTR with Distance -2.
+Queues>>> Queues checked with VT {3,[0,0,1]}.
+HBQ>>> Current Size 1.
+DLQ>>> Current Size 1.
+Queues checked.
+Message: {"beige",{1,[1]}} popped from DLQ.
+Message: "beige" with Timestamp: {1,[1]} read.
+Comm VT {3,[0,0,1]} synchronized with {1,[1]} is now {3,[1,0,1]}.
+VT is after VTR with Distance -1.
+Queues>>> removed {"lila",{1,[2]}} from HBQ and added to DLQ (aftereqVTJ, -1).
+Queues>>> Queues checked with VT {3,[1,0,1]} (HBQ empty).
+DLQ>>> Current Size 1.
+Queues checked.
+Message: {"lila",{1,[2]}} popped from DLQ.
+Message: "lila" with Timestamp: {1,[2]} read.
+Comm VT {3,[1,0,1]} synchronized with {1,[2]} is now {3,[2,0,1]}.
+Queues>>> Queues checked with VT {3,[2,0,1]} (HBQ empty).
+DLQ>>> Current Size 0.
+Queues checked.
+Message: "beigeK1" with Timestamp: {1,[3,0,1]} received.
+Message: "beigeK1" with Timestamp: {1,[3,0,1]} pushed to HBQ.
+VT is equal VTR with Distance -1.
+Queues>>> removed {"beigeK1",{1,[3,0,1]}} from HBQ and added to DLQ (aftereqVTJ, -1).
+Queues>>> Queues checked with VT {3,[2,0,1]} (HBQ empty).
+DLQ>>> Current Size 1.
+Queues checked.
+Message: {"beigeK1",{1,[3,0,1]}} popped from DLQ.
+Message: "beigeK1" with Timestamp: {1,[3,0,1]} read.
+Comm VT {3,[2,0,1]} synchronized with {1,[3,0,1]} is now {3,[3,0,1]}.
+Queues>>> Queues checked with VT {3,[3,0,1]} (HBQ empty).
+DLQ>>> Current Size 0.
+Queues checked.
+VT {3,[3,0,1]} ticked to {3,[3,0,2]}
+Message "gruenK1" with VT {3,[3,0,2]} sent from {commbot,'botC@MacBook-Air-von-Kristoffer'}
+Message: "gruenK1" with Timestamp: {3,[3,0,2]} pushed to DLQ.
+Queues>>> Queues checked with VT {3,[3,0,2]} (HBQ empty).
+DLQ>>> Current Size 1.
+Queues checked.
+Message: "lilaK1" with Timestamp: {1,[4,0,1]} received.
+Message: "lilaK1" with Timestamp: {1,[4,0,1]} pushed to HBQ.
+VT is after VTR with Distance -1.
+Queues>>> removed {"lilaK1",{1,[4,0,1]}} from HBQ and added to DLQ (aftereqVTJ, -1).
+Queues>>> Queues checked with VT {3,[3,0,2]} (HBQ empty).
+DLQ>>> Current Size 2.
+Queues checked.
+Message: "gruenK1" with Timestamp: {3,[3,0,2]} discarded.
+Message: {"gruenK1",{3,[3,0,2]}} popped from DLQ.
+Message: "gruenK1" with Timestamp: {3,[3,0,2]} read.
+Comm VT {3,[3,0,2]} synchronized with {3,[3,0,2]} is now {3,[3,0,2]}.
+Queues>>> Queues checked with VT {3,[3,0,2]} (HBQ empty).
+DLQ>>> Current Size 1.
+Queues checked.
+Message: {"lilaK1",{1,[4,0,1]}} popped from DLQ.
+Message: "lilaK1" with Timestamp: {1,[4,0,1]} read.
+Comm VT {3,[3,0,2]} synchronized with {1,[4,0,1]} is now {3,[4,0,2]}.
+Queues>>> Queues checked with VT {3,[4,0,2]} (HBQ empty).
+DLQ>>> Current Size 0.
+Queues checked.
+Message: null popped from DLQ.
+Message: 'null' read.
+Message: "beigeK2" with Timestamp: {1,[5,0,2]} received.
+Message: "beigeK2" with Timestamp: {1,[5,0,2]} pushed to HBQ.
+VT is equal VTR with Distance -1.
+Queues>>> removed {"beigeK2",{1,[5,0,2]}} from HBQ and added to DLQ (aftereqVTJ, -1).
+Queues>>> Queues checked with VT {3,[4,0,2]} (HBQ empty).
+DLQ>>> Current Size 1.
+Queues checked.
+Message: {"beigeK2",{1,[5,0,2]}} popped from DLQ.
+Message: "beigeK2" with Timestamp: {1,[5,0,2]} read.
+Comm VT {3,[4,0,2]} synchronized with {1,[5,0,2]} is now {3,[5,0,2]}.
+Queues>>> Queues checked with VT {3,[5,0,2]} (HBQ empty).
+DLQ>>> Current Size 0.
+Queues checked.
+VT {3,[5,0,2]} ticked to {3,[5,0,3]}
+Message "gruenK2" with VT {3,[5,0,3]} sent from {commbot,'botC@MacBook-Air-von-Kristoffer'}
+Message: "gruenK2" with Timestamp: {3,[5,0,3]} pushed to DLQ.
+Queues>>> Queues checked with VT {3,[5,0,3]} (HBQ empty).
+DLQ>>> Current Size 1.
+Queues checked.
+Message: {"gruenK2",{3,[5,0,3]}} popped from DLQ.
+Message: "gruenK2" with Timestamp: {3,[5,0,3]} read.
+Comm VT {3,[5,0,3]} synchronized with {3,[5,0,3]} is now {3,[5,0,3]}.
+Queues>>> Queues checked with VT {3,[5,0,3]} (HBQ empty).
+DLQ>>> Current Size 0.
+Queues checked.
+Message: "lilaK2" with Timestamp: {1,[6,0,3]} received.
+Message: "lilaK2" with Timestamp: {1,[6,0,3]} pushed to HBQ.
+VT is equal VTR with Distance -1.
+Queues>>> removed {"lilaK2",{1,[6,0,3]}} from HBQ and added to DLQ (aftereqVTJ, -1).
+Queues>>> Queues checked with VT {3,[5,0,3]} (HBQ empty).
+DLQ>>> Current Size 1.
+Queues checked.
+Message: "gruenK2" with Timestamp: {3,[5,0,3]} discarded.
+Message: {"lilaK2",{1,[6,0,3]}} popped from DLQ.
+Message: "lilaK2" with Timestamp: {1,[6,0,3]} read.
+Comm VT {3,[5,0,3]} synchronized with {1,[6,0,3]} is now {3,[6,0,3]}.
+Queues>>> Queues checked with VT {3,[6,0,3]} (HBQ empty).
+DLQ>>> Current Size 0.
+Queues checked.
+Message: null popped from DLQ.
+Message: 'null' read.
+VT {3,[6,0,3]} ticked to {3,[6,0,4]}
+Message "krimsKrams" with VT {3,[6,0,4]} sent from {commbot,'botC@MacBook-Air-von-Kristoffer'}
+Message: "krimsKrams" with Timestamp: {3,[6,0,4]} pushed to DLQ.
+Queues>>> Queues checked with VT {3,[6,0,4]} (HBQ empty).
+DLQ>>> Current Size 1.
+Queues checked.
